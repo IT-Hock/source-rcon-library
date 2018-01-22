@@ -51,24 +51,24 @@ namespace RCONServerLib
 
                     // The size field (4-Bytes Little Endian Int) is, according to specification, not included.
                     if (Size + 4 != packetBytes.Length)
-                        throw new Exception("packet length mismatch");
+                        throw new LengthMismatchException("packet length mismatch");
 
                     Id = reader.ReadInt32LittleEndian();
                     var packetType = reader.ReadInt32LittleEndian();
                     if (!Enum.IsDefined(typeof(PacketType), packetType))
-                        throw new Exception("Invalid packet type");
+                        throw new InvalidPacketTypeException("Invalid packet type");
                     Type = (PacketType) Enum.ToObject(typeof(PacketType), packetType);
                     Payload = reader.ReadAscii();
 
                     // Get payload length by subtracting 9 bytes (ID 4-Bytes, Type 4-Bytes, Null-terminator 1-Byte)
                     if (Encoding.ASCII.GetByteCount(Payload) > Size - 9)
-                        throw new Exception("Payload length mismatch");
+                        throw new LengthMismatchException("Payload length mismatch");
 
                     var nullTerminator = reader.ReadByte();
-                    if(nullTerminator != 0x00)
-                        throw new Exception("Missing last null-terminator");
-                    
-                    if(reader.BaseStream.Position != reader.BaseStream.Length)
+                    if (nullTerminator != 0x00)
+                        throw new NullTerminatorMissingException("Missing last null-terminator");
+
+                    if (reader.BaseStream.Position != reader.BaseStream.Length)
                         throw new Exception("More data to read");
                 }
             }
@@ -79,6 +79,8 @@ namespace RCONServerLib
             Payload = payload;
             Id = id;
             Type = type;
+            if (Length > 4096)
+                throw new PacketTooLongException();
         }
 
         /// <summary>
@@ -102,6 +104,34 @@ namespace RCONServerLib
                     return ms.ToArray();
                 }
             }
+        }
+    }
+
+    public class PacketTooLongException : Exception
+    {
+        public PacketTooLongException() : base()
+        {
+        }
+    }
+
+    public class NullTerminatorMissingException : Exception
+    {
+        public NullTerminatorMissingException(string message) : base(message)
+        {
+        }
+    }
+
+    public class LengthMismatchException : Exception
+    {
+        public LengthMismatchException(string message) : base(message)
+        {
+        }
+    }
+
+    public class InvalidPacketTypeException : Exception
+    {
+        public InvalidPacketTypeException(string message) : base(message)
+        {
         }
     }
 }
