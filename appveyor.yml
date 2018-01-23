@@ -1,7 +1,7 @@
 before_build:
   - nuget restore
 build_script:
-  - msbuild /verbosity:quiet "YourSolution"
+  - msbuild /verbosity:quiet "RCON.sln"
 test_script:
   - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"RCONServerLib.Tests\bin\Debug\RCONServerLib.Tests.dll -noshadow" -output:"coverage.xml" -filter:"+RCONServerLib* -RCONServerLibTests*"
 after_test:
