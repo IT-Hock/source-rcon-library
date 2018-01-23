@@ -4,9 +4,7 @@ version: 1.0.{build}-{branch}
 branches:
   only:
     - master
-    - production
-
-skip_non_tags: true
+    - release
 
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
