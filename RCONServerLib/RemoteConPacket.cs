@@ -6,8 +6,8 @@ using RCONServerLib.Utils;
 namespace RCONServerLib
 {
     /// <summary>
-    /// Class for Source RCON Packets
-    /// TODO: Split Packets (https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses)
+    ///     Class for Source RCON Packets
+    ///     TODO: Split Packets (https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses)
     /// </summary>
     internal class RemoteConPacket
     {
@@ -15,31 +15,31 @@ namespace RCONServerLib
         {
             ResponseValue = 0,
             ExecCommand = 2,
-            Auth = 3,
+            Auth = 3
         }
 
         /// <summary>
-        /// The size of the packet, excluding the size field itself.
-        /// </summary>
-        public readonly int Size;
-
-        /// <summary>
-        /// The identifier of the packet
-        /// (It need not be unique, but if a unique packet id is assigned,
-        /// it can be used to match incoming responses to their corresponding requests.)
+        ///     The identifier of the packet
+        ///     (It need not be unique, but if a unique packet id is assigned,
+        ///     it can be used to match incoming responses to their corresponding requests.)
         /// </summary>
         public readonly int Id;
 
         /// <summary>
-        /// Indication of the purpose of the packet
-        /// Can be any of <see cref="PacketType"/>
-        /// </summary>
-        public readonly PacketType Type;
-
-        /// <summary>
-        /// The payload of the packet
+        ///     The payload of the packet
         /// </summary>
         public readonly string Payload;
+
+        /// <summary>
+        ///     The size of the packet, excluding the size field itself.
+        /// </summary>
+        public readonly int Size;
+
+        /// <summary>
+        ///     Indication of the purpose of the packet
+        ///     Can be any of <see cref="PacketType" />
+        /// </summary>
+        public readonly PacketType Type;
 
         public RemoteConPacket(byte[] packetBytes)
         {
@@ -84,7 +84,7 @@ namespace RCONServerLib
         }
 
         /// <summary>
-        /// The total size of the packet
+        ///     The total size of the packet
         /// </summary>
         public int Length => Encoding.ASCII.GetBytes(Payload + '\0').Length + 13;
 
@@ -109,9 +109,6 @@ namespace RCONServerLib
 
     public class PacketTooLongException : Exception
     {
-        public PacketTooLongException() : base()
-        {
-        }
     }
 
     public class NullTerminatorMissingException : Exception

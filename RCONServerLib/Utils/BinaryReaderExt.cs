@@ -30,8 +30,9 @@ namespace RCONServerLib.Utils
             {
                 val = ReadByte();
                 if (val > 0)
-                    sb.Append((char)val);
+                    sb.Append((char) val);
             } while (val > 0);
+
             return sb.ToString();
         }
     }

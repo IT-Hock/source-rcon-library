@@ -44,11 +44,9 @@ after_test:
       $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
       Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
       bash codecov.sh -f "coverage.xml"
-artifacts:
-  - path: RCONServerLib\bin\Debug\RCONServerLib.dll
 
 artifacts:
-  - path: RCONServerLib\bin\$(configuration)
+  - path: RCONServerLib\bin\Release\RCONServerLib.dll
     name: rconserverlib
   - path: '**\*.nupkg'
     
