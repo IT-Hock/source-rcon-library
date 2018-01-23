@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/Subtixx/source-rcon-library/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Subtixx/source-rcon-library/</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial Release.</releaseNotes>
+    <copyright>Copyright Subtixx 2018</copyright>
+    <tags>source-rcon-server rconserver remoteconsole rcon-server</tags>
+  </metadata>
+</package>
