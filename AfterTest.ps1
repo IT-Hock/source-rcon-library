@@ -2,7 +2,7 @@ param (
 	[string]$Version = "0.0.1"
 )
 $base_dir = split-path -parent $MyInvocation.MyCommand.Definition
-$output_dir = Join-Path $base_dir .\RCONServerLib
+$output_dir = Join-Path $base_dir .\output
 $src_dir = Join-Path $base_dir .\RCONServerLib
 $nuspec = Get-ChildItem $src_dir\*.nuspec -Recurse
 

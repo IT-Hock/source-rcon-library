@@ -49,7 +49,7 @@ after_test:
 artifacts:
   - path: RCONServerLib\bin\Release\RCONServerLib.dll
     name: rconserverlib
-  - path: 'RCONServerLib\**\*.nupkg'
+  - path: 'output\**\*.nupkg'
     name: Nuget
     
 deploy:
