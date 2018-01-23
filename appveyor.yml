@@ -27,8 +27,8 @@ nuget:
   
 platform: Any CPU
 configuration:
-  - Debug
   - Release
+  - Debug
   
 build:
   parallel: true
@@ -38,7 +38,7 @@ before_build:
 build_script:
   - msbuild /verbosity:quiet "RCON.sln"
 test_script:
-  - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"RCONServerLib.Tests\bin\Debug\RCONServerLib.Tests.dll -noshadow" -output:"coverage.xml" -filter:"+RCONServerLib* -RCONServerLibTests*"
+  - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"RCONServerLib.Tests\bin\Debug\RCONServerLib.Tests.dll -noshadow" -output:"coverage.xml" -filter:"+RCONServerLib* -RCONServerLib.Tests*"
 after_test:
   - ps: |
       $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
@@ -48,11 +48,11 @@ after_test:
 artifacts:
   - path: RCONServerLib\bin\Release\RCONServerLib.dll
     name: rconserverlib
-  - path: '**\*.nupkg'
+  - path: 'RCONServerLib\*.nupkg'
     
 deploy:
   - provider: NuGet
     api_key:
       secure: A+/eZB/j74UGv72c1pFKGxcjtu8KT6/rqbwwx+ZRifwDDK8lRUVo4FKubGPUgWAh
     skip_symbols: false
-    artifact: /.*\.nupkg/
+    artifact: /RCONServerLib*\.nupkg/
