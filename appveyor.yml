@@ -28,7 +28,7 @@ nuget:
 platform: Any CPU
 configuration:
   - Release
-  - Debug
+  #- Debug
   
 build:
   parallel: true
@@ -38,21 +38,24 @@ before_build:
 build_script:
   - msbuild /verbosity:quiet "RCON.sln"
 test_script:
-  - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"RCONServerLib.Tests\bin\Debug\RCONServerLib.Tests.dll -noshadow" -output:"coverage.xml" -filter:"+RCONServerLib* -RCONServerLib.Tests*"
+  - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"RCONServerLib.Tests\bin\Release\RCONServerLib.Tests.dll -noshadow" -output:"coverage.xml" -filter:"+RCONServerLib* -RCONServerLib.Tests*"
 after_test:
   - ps: |
       $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
       Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
       bash codecov.sh -f "coverage.xml"
+  - ps: .\scripts\AfterTest.ps1 -Version $env:APPVEYOR_BUILD_VERSION
 
 artifacts:
   - path: RCONServerLib\bin\Release\RCONServerLib.dll
     name: rconserverlib
-  - path: 'RCONServerLib\*.nupkg'
+  - path: 'RCONServerLib\**\*.nupkg'
+    name: Nuget
     
 deploy:
   - provider: NuGet
+    on:
+      branch: release
     api_key:
       secure: A+/eZB/j74UGv72c1pFKGxcjtu8KT6/rqbwwx+ZRifwDDK8lRUVo4FKubGPUgWAh
-    skip_symbols: false
-    artifact: /RCONServerLib*\.nupkg/
+    artifact: Nuget
