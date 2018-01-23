@@ -1,4 +1,4 @@
-# Source RCON Library [![Build status](https://ci.appveyor.com/api/projects/status/n9sygmqvugpvl7q6?svg=true)](https://ci.appveyor.com/project/Subtixx/source-rcon-library)
+# Source RCON Library [![Build status](https://ci.appveyor.com/api/projects/status/n9sygmqvugpvl7q6?svg=true)](https://ci.appveyor.com/project/Subtixx/source-rcon-library) [![Code Coverage](https://codecov.io/gh/Subtixx/source-rcon-library/coverage.svg)](https://codecov.io/gh/Subtixx/source-rcon-library)
 
 Source RCON Library is a single class solution to create a [source](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) compatible RCON Server
 
