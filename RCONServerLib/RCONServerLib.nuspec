@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>source-rcon-server</id>
+    <version>1.0.0</version>
+    <title>Source RCON Server Lib</title>
+    <authors>Julien</authors>
+    <owners>Julien</owners>
+    <licenseUrl>https://github.com/Subtixx/source-rcon-library/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Subtixx/source-rcon-library/</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Single class solution to create a source compatible RCON interface</description>
+    <releaseNotes>Initial Release.</releaseNotes>
+    <copyright>Copyright Subtixx 2018</copyright>
+    <tags>source-rcon-server rconserver remoteconsole rcon-server</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\RCONServerLib.dll" target="lib\net35\RCONServerLib.dll" />
+  </files>
+</package>

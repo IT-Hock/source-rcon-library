@@ -1,0 +1,61 @@
+# version format
+version: 1.0.{build}-{branch}
+
+branches:
+  only:
+    - master
+    - production
+
+skip_non_tags: true
+
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - '%LocalAppData%\NuGet\Cache'    # NuGet < v3
+  - '%LocalAppData%\NuGet\v3-cache' # NuGet v3
+  
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "1.0.{build}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+  
+nuget:
+  account_feed: true
+  project_feed: true
+  disable_publish_on_pr: true     # disable publishing of .nupkg artifacts to
+  
+platform: Any CPU
+configuration:
+  - Release
+  #- Debug
+  
+build:
+  parallel: true
+
+before_build:
+  - nuget restore
+build_script:
+  - msbuild /verbosity:quiet "RCON.sln"
+test_script:
+  - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"RCONServerLib.Tests\bin\Release\RCONServerLib.Tests.dll -noshadow" -output:"coverage.xml" -filter:"+RCONServerLib* -RCONServerLib.Tests*"
+after_test:
+  - ps: |
+      $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
+      Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
+      bash codecov.sh -f "coverage.xml"
+  - ps: .\AfterTest.ps1 -Version $env:APPVEYOR_BUILD_VERSION
+
+artifacts:
+  - path: RCONServerLib\bin\Release\RCONServerLib.dll
+    name: rconserverlib
+  - path: 'output\**\*.nupkg'
+    name: Nuget
+    
+deploy:
+  - provider: NuGet
+    on:
+      branch: release
+    api_key:
+      secure: A+/eZB/j74UGv72c1pFKGxcjtu8KT6/rqbwwx+ZRifwDDK8lRUVo4FKubGPUgWAh
+    artifact: Nuget

@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Remote Console Server Library")]
-[assembly: AssemblyDescription("Easy to use remote console server")]
+[assembly: AssemblyTitle("RCONServerLib.Tests")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Remote Console Server Lib")]
-[assembly: AssemblyCopyright("Copyright © Subtixx 2018")]
+[assembly: AssemblyProduct("RCONServerLib.Tests")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,9 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2EFA0311-14CE-414B-9867-FC0D1FF6F6C4")]
-
-[assembly:InternalsVisibleTo("RCONServerLib.Tests")]
+[assembly: Guid("A1FDCE93-4C35-4A04-AD3E-F67949607BA9")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -5,20 +5,20 @@ using RCONServerLib.Utils;
 namespace RCONServerLib
 {
     /// <summary>
-    /// Client connected to the remote console
+    ///     Client connected to the remote console
     /// </summary>
     internal class RemoteConClient
     {
         private const int MaxAllowedPacketSize = 4096;
         private readonly NetworkStream _ns;
-        private readonly TcpClient _tcp;
         private readonly RemoteConServer _remoteConServer;
+        private readonly TcpClient _tcp;
+        private bool _authenticated;
+        private int _authTries;
 
         private byte[] _buffer;
 
         private bool _connected;
-        private bool _authenticated;
-        private int _authTries = 0;
 
         public RemoteConClient(TcpClient tcp, RemoteConServer remoteConServer)
         {
@@ -47,7 +47,7 @@ namespace RCONServerLib
         }
 
         /// <summary>
-        /// Closes the connection with the client
+        ///     Closes the connection with the client
         /// </summary>
         private void CloseConnection()
         {
@@ -61,7 +61,7 @@ namespace RCONServerLib
         }
 
         /// <summary>
-        /// Sends the specified packet to the client
+        ///     Sends the specified packet to the client
         /// </summary>
         /// <param name="packet">The packet to send</param>
         /// <exception cref="Exception">Not connected</exception>
@@ -75,7 +75,7 @@ namespace RCONServerLib
         }
 
         /// <summary>
-        /// Handles packets
+        ///     Handles packets
         /// </summary>
         /// <param name="result"></param>
         private void OnPacket(IAsyncResult result)
@@ -124,7 +124,10 @@ namespace RCONServerLib
                     if (packet.Payload == _remoteConServer.Password)
                     {
                         _authenticated = true;
-                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
+
+                        if (!_remoteConServer.SendAuthImmediately)
+                            SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
+
                         SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ExecCommand, ""));
                     }
                     else

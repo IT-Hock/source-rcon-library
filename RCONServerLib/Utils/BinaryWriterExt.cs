@@ -40,11 +40,14 @@ namespace RCONServerLib.Utils
                         s2 = s;
                         continue;
                     }
+
                     s2 = s2 + s;
                 }
+
                 var s3 = $"{j++ * bytesPerLine:d6}: {s1} {s2}";
                 hexDump = hexDump + s3 + Environment.NewLine;
             }
+
             return hexDump;
         }
     }
