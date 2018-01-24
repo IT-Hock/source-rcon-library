@@ -43,8 +43,6 @@ public static class Program
         while (true)
         {
         }
-
-        return 0;
     }
     
     public string Hello_Command(string command, IList<string> args)

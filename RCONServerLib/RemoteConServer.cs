@@ -29,7 +29,7 @@ namespace RCONServerLib
         public bool InvalidPacketKick = true;
 
         /// <summary>
-        ///     An array containing IP Patterns
+        ///     An array containing IP Patterns to allow connecting
         ///     eg.
         ///     192.*.*.* matches all ips starting with 192
         ///     127.0.0.* matches all ips starting with 127.0.0.*

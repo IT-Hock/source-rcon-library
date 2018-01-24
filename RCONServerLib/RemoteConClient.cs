@@ -18,9 +18,9 @@ namespace RCONServerLib
 
         private byte[] _buffer;
 
-        internal bool Connected;
+        private bool _connected;
 
-        private bool _isUnitTest;
+        private readonly bool _isUnitTest;
 
         public RemoteConClient(TcpClient tcp, RemoteConServer remoteConServer)
         {
@@ -28,7 +28,7 @@ namespace RCONServerLib
             _remoteConServer = remoteConServer;
 
             _ns = tcp.GetStream();
-            Connected = true;
+            _connected = true;
             Authenticated = false;
 
             try
@@ -48,6 +48,9 @@ namespace RCONServerLib
             }
         }
 
+        /// <summary>
+        ///     UnitTest only constructor
+        /// </summary>
         internal RemoteConClient(RemoteConServer remoteConServer)
         {
             _remoteConServer = remoteConServer;
@@ -55,14 +58,14 @@ namespace RCONServerLib
         }
 
         /// <summary>
-        ///     Closes the connection with the client
+        ///     Closes the TCP connection
         /// </summary>
         private void CloseConnection()
         {
             if (_isUnitTest)
                 return;
             
-            Connected = false;
+            _connected = false;
 
             if (!_tcp.Connected)
                 return;
@@ -81,7 +84,7 @@ namespace RCONServerLib
             if (_isUnitTest)
                 return;
             
-            if (!Connected)
+            if (!_connected)
                 throw new Exception("Not connected.");
 
             var ackBytes = packet.GetBytes();
@@ -97,7 +100,7 @@ namespace RCONServerLib
             try
             {
                 var bytesRead = _ns.EndRead(result);
-                if (!Connected)
+                if (!_connected)
                 {
                     CloseConnection();
                     return;
@@ -125,12 +128,12 @@ namespace RCONServerLib
                 /*var buffer = new byte[bytesRead];
                 Array.Copy(_buffer, 0, buffer, 0, bytesRead);*/
 
-                ProcessPacket(_buffer);
+                ParsePacket(_buffer);
 
                 if (!_tcp.Connected)
                     return;
 
-                if (!Connected)
+                if (!_connected)
                 {
                     CloseConnection();
                     return;
@@ -145,7 +148,11 @@ namespace RCONServerLib
             }
         }
 
-        internal void ProcessPacket(byte[] rawPacket)
+        /// <summary>
+        /// Parses raw bytes to RemoteConPacket
+        /// </summary>
+        /// <param name="rawPacket"></param>
+        internal void ParsePacket(byte[] rawPacket)
         {
             var packet = new RemoteConPacket(rawPacket);
 
@@ -153,7 +160,11 @@ namespace RCONServerLib
             if (!Authenticated)
             {
                 if (packet.Type != RemoteConPacket.PacketType.Auth)
+                {
+                    if (_isUnitTest)
+                        throw new NotAuthenticatedException();
                     CloseConnection();
+                }
 
                 _authTries++;
 
@@ -165,54 +176,59 @@ namespace RCONServerLib
                         SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
 
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ExecCommand, ""));
+                    return;
                 }
-                else
+                
+                if (_authTries >= _remoteConServer.MaxPasswordTries)
                 {
-                    if (_authTries >= _remoteConServer.MaxPasswordTries)
-                    {
-                        CloseConnection();
-                        return;
-                    }
-
-                    if (!_remoteConServer.SendAuthImmediately)
-                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
-
-                    SendPacket(new RemoteConPacket(-1, RemoteConPacket.PacketType.ExecCommand, ""));
+                    CloseConnection();
+                    return;
                 }
+
+                if (!_remoteConServer.SendAuthImmediately)
+                    SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
+
+                SendPacket(new RemoteConPacket(-1, RemoteConPacket.PacketType.ExecCommand, ""));
+
+                return;
+            }
+
+            // Invalid packet type.
+            if (packet.Type != RemoteConPacket.PacketType.ExecCommand)
+            {
+                if (_isUnitTest)
+                    throw new InvalidPacketTypeException();
+                
+                if (_remoteConServer.InvalidPacketKick)
+                    CloseConnection();
+                return;
+            }
+
+            if (packet.Payload == "")
+            {
+                if (_isUnitTest)
+                    throw new EmptyPacketPayloadException();
+                
+                if (_remoteConServer.EmptyPayloadKick)
+                    CloseConnection();
+                return;
+            }
+
+            var args = ArgumentParser.ParseLine(packet.Payload);
+            var cmd = args[0];
+            args.RemoveAt(0);
+            var command = _remoteConServer.CommandManager.GetCommand(cmd);
+            if (command == null)
+            {
+                SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
+                    "Invalid command \"" + packet.Payload + "\""));
             }
             else
             {
-                // Invalid packet type.
-                if (packet.Type != RemoteConPacket.PacketType.ExecCommand)
-                {
-                    if (_remoteConServer.InvalidPacketKick)
-                        CloseConnection();
-                    return;
-                }
-
-                if (packet.Payload == "")
-                {
-                    if (_remoteConServer.EmptyPayloadKick)
-                        CloseConnection();
-                    return;
-                }
-
-                var args = ArgumentParser.ParseLine(packet.Payload);
-                var cmd = args[0];
-                args.RemoveAt(0);
-                var command = _remoteConServer.CommandManager.GetCommand(cmd);
-                if (command == null)
-                {
-                    SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        "Invalid command \"" + packet.Payload + "\""));
-                }
-                else
-                {
-                    var commandResult = command.Func(cmd, args);
-                    // TODO: Split packets?
-                    SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        commandResult));
-                }
+                var commandResult = command.Func(cmd, args);
+                // TODO: Split packets?
+                SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
+                    commandResult));
             }
         }
     }

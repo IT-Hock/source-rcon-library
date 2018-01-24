@@ -54,10 +54,12 @@ namespace RCONServerLib
                         throw new LengthMismatchException("packet length mismatch");
 
                     Id = reader.ReadInt32LittleEndian();
+					
                     var packetType = reader.ReadInt32LittleEndian();
                     if (!Enum.IsDefined(typeof(PacketType), packetType))
                         throw new InvalidPacketTypeException("Invalid packet type");
                     Type = (PacketType) Enum.ToObject(typeof(PacketType), packetType);
+					
                     Payload = reader.ReadAscii();
 
                     // Get payload length by subtracting 9 bytes (ID 4-Bytes, Type 4-Bytes, Null-terminator 1-Byte)
@@ -104,31 +106,6 @@ namespace RCONServerLib
                     return ms.ToArray();
                 }
             }
-        }
-    }
-
-    public class PacketTooLongException : Exception
-    {
-    }
-
-    public class NullTerminatorMissingException : Exception
-    {
-        public NullTerminatorMissingException(string message) : base(message)
-        {
-        }
-    }
-
-    public class LengthMismatchException : Exception
-    {
-        public LengthMismatchException(string message) : base(message)
-        {
-        }
-    }
-
-    public class InvalidPacketTypeException : Exception
-    {
-        public InvalidPacketTypeException(string message) : base(message)
-        {
         }
     }
 }

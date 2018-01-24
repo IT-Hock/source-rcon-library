@@ -78,5 +78,10 @@ namespace RCONServerLib.Utils
         public CommandFunc Func { get; protected set; }
     }
     
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="command">The command that was entered</param>
+	/// <param name="args">List containing all arguments, does not contain command</param>
     public delegate string CommandFunc(string command, IList<string> args);
 }
