@@ -50,7 +50,10 @@ namespace RCONServerLib.Tests
 	    [Fact]
 	    public void RemoteConAuthSuccessTest()
 	    {
-		    var server = new RemoteConServer(IPAddress.Any, 27015);
+		    var server = new RemoteConServer(IPAddress.Any, 27015)
+		    {
+			    Password = "supersecretpassword"
+		    };
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
 		    var client = new RemoteConClient(server);
