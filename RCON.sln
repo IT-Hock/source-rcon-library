@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCONServer", "RCONServer\RCONServer.csproj", "{EDB656EE-634B-4080-8293-73205470FCCF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCONServerLibExample", "RCONServerLibExample\RCONServerLibExample.csproj", "{EDB656EE-634B-4080-8293-73205470FCCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCONServerLib", "RCONServerLib\RCONServerLib.csproj", "{2EFA0311-14CE-414B-9867-FC0D1FF6F6C4}"
 EndProject

@@ -7,8 +7,8 @@
     <ProjectGuid>{EDB656EE-634B-4080-8293-73205470FCCF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RCONServer</RootNamespace>
-    <AssemblyName>RCONServer</AssemblyName>
+    <RootNamespace>RCONServerLibExample</RootNamespace>
+    <AssemblyName>RCONServerLibExample</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>6</LangVersion>

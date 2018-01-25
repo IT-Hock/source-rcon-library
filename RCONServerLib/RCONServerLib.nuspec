@@ -1,21 +1,25 @@
 <?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>source-rcon-server</id>
-    <version>1.0.0</version>
-    <title>Source RCON Server Lib</title>
-    <authors>Julien</authors>
-    <owners>Julien</owners>
-    <licenseUrl>https://github.com/Subtixx/source-rcon-library/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/Subtixx/source-rcon-library/</projectUrl>
-    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Single class solution to create a source compatible RCON interface</description>
-    <releaseNotes>Initial Release.</releaseNotes>
-    <copyright>Copyright Subtixx 2018</copyright>
-    <tags>source-rcon-server rconserver remoteconsole rcon-server</tags>
-  </metadata>
-  <files>
-    <file src="bin\Release\RCONServerLib.dll" target="lib\net35\RCONServerLib.dll" />
-  </files>
+<package>
+    <metadata>
+        <id>source-rcon-server</id>
+        <version>1.0.0</version>
+        <title>Source RCON Server Lib</title>
+        <authors>Julien H. (Subtixx)</authors>
+        <owners>Julien H. (Subtixx)</owners>
+        <licenseUrl>https://github.com/Subtixx/source-rcon-library/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/Subtixx/source-rcon-library/</projectUrl>
+        <iconUrl>https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>
+            Easy to use, single-class solution to create a Valve source RCON server which supports authentication,
+            IP Whitelisting and a command manager
+        </description>
+        <summary>Single class solution to create a source compatible RCON interface</summary>
+        <releaseNotes>Initial Release.</releaseNotes>
+        <copyright>Copyright Subtixx 2018</copyright>
+        <tags>source-rcon-server rconserver remoteconsole rcon-server</tags>
+    </metadata>
+    <files>
+        <file src="bin\Release\RCONServerLib.dll" target="lib\net35\RCONServerLib.dll"/>
+    </files>
 </package>

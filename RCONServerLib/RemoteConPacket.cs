@@ -18,6 +18,8 @@ namespace RCONServerLib
             Auth = 3
         }
 
+        private const int MaxAllowedPacketSize = 4096;
+
         /// <summary>
         ///     The identifier of the packet
         ///     (It need not be unique, but if a unique packet id is assigned,
@@ -54,12 +56,12 @@ namespace RCONServerLib
                         throw new LengthMismatchException("packet length mismatch");
 
                     Id = reader.ReadInt32LittleEndian();
-					
+
                     var packetType = reader.ReadInt32LittleEndian();
                     if (!Enum.IsDefined(typeof(PacketType), packetType))
                         throw new InvalidPacketTypeException("Invalid packet type");
                     Type = (PacketType) Enum.ToObject(typeof(PacketType), packetType);
-					
+
                     Payload = reader.ReadAscii();
 
                     // Get payload length by subtracting 9 bytes (ID 4-Bytes, Type 4-Bytes, Null-terminator 1-Byte)
@@ -81,15 +83,22 @@ namespace RCONServerLib
             Payload = payload;
             Id = id;
             Type = type;
-            if (Length > 4096)
+            if (Length > MaxAllowedPacketSize)
                 throw new PacketTooLongException();
         }
 
         /// <summary>
         ///     The total size of the packet
         /// </summary>
-        public int Length => Encoding.ASCII.GetBytes(Payload + '\0').Length + 13;
+        public int Length
+        {
+            get { return Encoding.ASCII.GetBytes(Payload + '\0').Length + 13; }
+        }
 
+        /// <summary>
+        ///     Writes the packet to a byte-array
+        /// </summary>
+        /// <returns>The packet in byte array</returns>
         public byte[] GetBytes()
         {
             using (var ms = new MemoryStream())

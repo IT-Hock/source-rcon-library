@@ -27,9 +27,19 @@ namespace RCONServerLib.Utils
         ///     Adds new command handler.
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="handler"></param>
+        public void Add(string name, CommandHandler handler)
+        {
+            Add(name, "", "", handler);
+        }
+
+        /// <summary>
+        ///     Adds new command handler.
+        /// </summary>
+        /// <param name="name"></param>
         /// <param name="description"></param>
         /// <param name="handler"></param>
-        public void Add(string name, string description, CommandFunc handler)
+        public void Add(string name, string description, CommandHandler handler)
         {
             Add(name, "", description, handler);
         }
@@ -41,7 +51,7 @@ namespace RCONServerLib.Utils
         /// <param name="usage"></param>
         /// <param name="description"></param>
         /// <param name="handler"></param>
-        public void Add(string name, string usage, string description, CommandFunc handler)
+        public void Add(string name, string usage, string description, CommandHandler handler)
         {
             Commands[name] = new Command(name, usage, description, handler);
         }
@@ -64,18 +74,18 @@ namespace RCONServerLib.Utils
     /// </summary>
     public class Command
     {
-        public Command(string name, string usage, string description, CommandFunc func)
+        public Command(string name, string usage, string description, CommandHandler handler)
         {
             Name = name;
             Usage = usage;
             Description = description;
-            Func = func;
+            Handler = handler;
         }
 
         public string Name { get; protected set; }
         public string Usage { get; protected set; }
         public string Description { get; protected set; }
-        public CommandFunc Func { get; protected set; }
+        public CommandHandler Handler { get; protected set; }
     }
     
 	/// <summary>
@@ -83,5 +93,5 @@ namespace RCONServerLib.Utils
 	/// </summary>
 	/// <param name="command">The command that was entered</param>
 	/// <param name="args">List containing all arguments, does not contain command</param>
-    public delegate string CommandFunc(string command, IList<string> args);
+	public delegate string CommandHandler(string command, IList<string> args);
 }

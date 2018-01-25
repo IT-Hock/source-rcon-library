@@ -11,6 +11,10 @@ namespace RCONServerLib.Utils
         {
         }
 
+        /// <summary>
+        ///     Reads the next 4-Bytes as Little-Endian if we're in a big-endian environment
+        /// </summary>
+        /// <returns></returns>
         public int ReadInt32LittleEndian()
         {
             var intBytes = ReadBytes(4);
@@ -22,6 +26,10 @@ namespace RCONServerLib.Utils
             return BitConverter.ToInt32(bytes, 0);
         }
 
+        /// <summary>
+        ///     Reads a ASCII string (Null-terminated string) without the null-terminator
+        /// </summary>
+        /// <returns></returns>
         public string ReadAscii()
         {
             var sb = new StringBuilder();
