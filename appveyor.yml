@@ -51,8 +51,10 @@ artifacts:
     name: Nuget
     
 deploy:
-  - provider: Environment
-    name: GithubRcon
+#  - provider: Environment
+#    name: GithubRcon
+#    on:
+#      branch: release
   - provider: NuGet
     on:
       branch: release
