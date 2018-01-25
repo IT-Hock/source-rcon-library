@@ -11,8 +11,8 @@
         <iconUrl>https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
-            Easy to use, single-class solution to create a Valve source RCON server which supports authentication,
-            IP Whitelisting and a command manager
+Easy to use, single-class solution to create a Valve source RCON server which supports authentication,
+IP Whitelisting and a command manager
         </description>
         <summary>Single class solution to create a source compatible RCON interface</summary>
         <releaseNotes>Initial Release.</releaseNotes>

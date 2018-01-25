@@ -276,6 +276,18 @@ namespace RCONServerLib
                         commandResult));
                 }
             }
+            catch (NotAuthenticatedException e)
+            {
+                throw;
+            }
+            catch (InvalidPacketTypeException e)
+            {
+                throw;
+            }
+            catch (EmptyPacketPayloadException e)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Debug.WriteLine(string.Format("Client {0} caused an exception: {1} and was killed.",
