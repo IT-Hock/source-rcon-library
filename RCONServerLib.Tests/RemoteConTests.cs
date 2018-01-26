@@ -12,7 +12,7 @@ namespace RCONServerLib.Tests
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    
 		    // Wrong Auth packet type test
 		    Assert.Throws<NotAuthenticatedException>(() =>
@@ -34,7 +34,7 @@ namespace RCONServerLib.Tests
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    
 		    // Auth wrong test
 		    client.ParsePacket(new byte[]
@@ -56,7 +56,7 @@ namespace RCONServerLib.Tests
 		    };
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    
 		    // Auth correct test
 		    client.ParsePacket(new byte[]
@@ -75,7 +75,7 @@ namespace RCONServerLib.Tests
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
 		    
 		    // No command found test
@@ -95,7 +95,7 @@ namespace RCONServerLib.Tests
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
 		    
 		    // Command test
@@ -115,7 +115,7 @@ namespace RCONServerLib.Tests
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
 		    
 		    // Empty payload test
@@ -138,7 +138,7 @@ namespace RCONServerLib.Tests
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
 		    
-		    var client = new RemoteConClient(server);
+		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
 		    
 		    // Type other than execcommand

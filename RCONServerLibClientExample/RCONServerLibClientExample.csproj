@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2EFA0311-14CE-414B-9867-FC0D1FF6F6C4}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{F394E5AB-E3C0-4BF9-9BE7-BAE048B61B40}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RCONServerLib</RootNamespace>
-    <AssemblyName>RCONServerLib</AssemblyName>
+    <RootNamespace>RCONServerLibClientExample</RootNamespace>
+    <AssemblyName>RCONServerLibClientExample</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,22 +33,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RemoteConClient.cs" />
-    <Compile Include="RemoteConTcpClient.cs" />
-    <Compile Include="RemoteConPacket.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoteConServer.cs" />
-    <Compile Include="Utils\ArgumentParser.cs" />
-    <Compile Include="Utils\BinaryReaderExt.cs" />
-    <Compile Include="Utils\BinaryWriterExt.cs" />
-    <Compile Include="Utils\CommandManager.cs" />
-    <Compile Include="Utils\Exceptions.cs" />
-    <Compile Include="Utils\IpExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="RCONServerLib.nuspec" />
+    <ProjectReference Include="..\RCONServerLib\RCONServerLib.csproj">
+      <Project>{2efa0311-14ce-414b-9867-fc0d1ff6f6c4}</Project>
+      <Name>RCONServerLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

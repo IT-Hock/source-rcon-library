@@ -141,6 +141,7 @@ public static class Program
 ## ToDo List
 
 * [ ] Ban List
+* [ ] Split packets at 4096 bytes
 
 ## References
 

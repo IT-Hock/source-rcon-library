@@ -29,6 +29,12 @@ namespace RCONServerLib
             Password = "changeme";
             SendAuthImmediately = false;
 
+#if DEBUG
+            Debug = true;
+#else
+            Debug = false;
+#endif
+
             _listener = new TcpListener(bindAddress, port);
         }
 
@@ -89,6 +95,8 @@ namespace RCONServerLib
         /// </summary>
         public event CommandEventHandler OnCommandReceived;
 
+        public bool Debug { get; set; }
+
         /// <summary>
         ///     Starts the TCPListener and begins accepting clients
         /// </summary>
@@ -96,6 +104,7 @@ namespace RCONServerLib
         {
             _listener.Start();
             _listener.BeginAcceptTcpClient(OnAccept, _listener);
+            LogDebug("Started listening on " + ((IPEndPoint)_listener.LocalEndpoint).Address + ", Password is: \"" + Password + "\"");
         }
 
         public void StopListening()
@@ -115,7 +124,8 @@ namespace RCONServerLib
                     return;
                 }
 
-            var client = new RemoteConClient(tcpClient, this);
+            LogDebug("Accepted new connection from " + ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address);
+            var client = new RemoteConTcpClient(tcpClient, this);
 
             _listener.BeginAcceptTcpClient(OnAccept, _listener);
         }
@@ -123,6 +133,15 @@ namespace RCONServerLib
         internal string ExecuteCustomCommandHandler(string cmd, IList<string> args)
         {
             return UseCustomCommandHandler && OnCommandReceived != null ? OnCommandReceived(cmd, args) : "";
+        }
+
+        internal void LogDebug(string message)
+        {
+            if (!Debug)
+                return;
+
+            System.Diagnostics.Debug.WriteLine(message);
+            Console.WriteLine(message);
         }
     }
 }
