@@ -2,7 +2,18 @@
 
 namespace RCONServerLib.Utils
 {
-    public class NotAuthenticatedException : Exception
+    public class RconServerException : Exception
+    {
+        protected RconServerException()
+        {
+        }
+
+        protected RconServerException(string message) : base(message)
+        {
+        }
+    }
+
+    public class NotAuthenticatedException : RconServerException
     {
         public NotAuthenticatedException()
         {
@@ -13,7 +24,7 @@ namespace RCONServerLib.Utils
         }
     }
 
-    public class EmptyPacketPayloadException : Exception
+    public class EmptyPacketPayloadException : RconServerException
     {
         public EmptyPacketPayloadException()
         {
@@ -24,7 +35,7 @@ namespace RCONServerLib.Utils
         }
     }
 
-    public class PacketTooLongException : Exception
+    public class PacketTooLongException : RconServerException
     {
         public PacketTooLongException()
         {
@@ -35,7 +46,7 @@ namespace RCONServerLib.Utils
         }
     }
 
-    public class NullTerminatorMissingException : Exception
+    public class NullTerminatorMissingException : RconServerException
     {
         public NullTerminatorMissingException()
         {
@@ -46,7 +57,7 @@ namespace RCONServerLib.Utils
         }
     }
 
-    public class LengthMismatchException : Exception
+    public class LengthMismatchException : RconServerException
     {
         public LengthMismatchException()
         {
@@ -57,7 +68,7 @@ namespace RCONServerLib.Utils
         }
     }
 
-    public class InvalidPacketTypeException : Exception
+    public class InvalidPacketTypeException : RconServerException
     {
         public InvalidPacketTypeException()
         {

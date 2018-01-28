@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Sockets;
 using RCONServerLib.Utils;
 
@@ -8,19 +9,64 @@ namespace RCONServerLib
 {
     public class RemoteConClient
     {
+        /// <summary>
+        /// </summary>
+        /// <param name="success">If the authentication request was successful or not</param>
+        public delegate void AuthEventHandler(bool success);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="result">A string containing the answer of the server</param>
         public delegate void CommandResult(string result);
 
+        /// <summary>
+        /// </summary>
+        /// <param name="type">The type of the change</param>
+        public delegate void ConnectionEventHandler(ConnectionStateChange type);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="message">The message we want to log</param>
+        public delegate void LogEventHandler(string message);
+
+        public enum ConnectionStateChange
+        {
+            Connected,
+            Disconnected,
+            ConnectionLost
+        }
+
         private const int MaxAllowedPacketSize = 4096;
-        private TcpClient _client;
-        private NetworkStream _ns;
 
-        private bool _authenticated;
+        /// <summary>
+        ///     The TCP Client
+        /// </summary>
+        private readonly TcpClient _client;
 
+        /// <summary>
+        ///     A list containing all requested commands for event handling
+        /// </summary>
+        private readonly Dictionary<int, CommandResult> _requestedCommands;
+
+        /// <summary>
+        ///     A buffer containing the packet
+        /// </summary>
         private byte[] _buffer;
 
+        /// <summary>
+        ///     Underlaying NetworkStream
+        /// </summary>
+        private NetworkStream _ns;
+
+        /// <summary>
+        ///     Current packetId we're on
+        /// </summary>
         private int _packetId;
 
-        private Dictionary<int, CommandResult> _requestedCommands;
+        /// <summary>
+        ///     If the client is authenticated
+        /// </summary>
+        public bool Authenticated;
 
         public RemoteConClient()
         {
@@ -30,9 +76,50 @@ namespace RCONServerLib
             _requestedCommands = new Dictionary<int, CommandResult>();
         }
 
+        /// <summary>
+        ///     Wether or not the TcpClient is still connected
+        /// </summary>
+        public bool Connected
+        {
+            get { return _client.Connected; }
+        }
+
+        /// <summary>
+        ///     An event handler when the result of the authentication is received
+        /// </summary>
+        public event AuthEventHandler OnAuthResult;
+
+        /// <summary>
+        ///     An event handler when the class wants to log something
+        ///     Supressed when empty.
+        /// </summary>
+        public event LogEventHandler OnLog;
+
+        /// <summary>
+        ///     An event handler when the connection state changes
+        ///     Ex. when disconnected or connection is lost
+        /// </summary>
+        public event ConnectionEventHandler OnConnectionStateChange;
+
+        /// <summary>
+        ///     Connects to the specified RCON Server
+        /// </summary>
+        /// <param name="hostname">The hostname of the RCON Server</param>
+        /// <param name="port">The port to connect to</param>
         public void Connect(string hostname, int port)
         {
-            _client.Connect(hostname, port);
+            Log(string.Format("Connecting to {0}:{1}", hostname, port));
+            try
+            {
+                _client.Connect(hostname, port);
+            }
+            catch (SocketException)
+            {
+                if (OnConnectionStateChange != null)
+                    OnConnectionStateChange(ConnectionStateChange.ConnectionLost);
+                return;
+            }
+
             if (!_client.Connected) return;
             _ns = _client.GetStream();
 
@@ -40,8 +127,41 @@ namespace RCONServerLib
             // NOTE: Not sure if only the server is allowed to sent packets with max 4096 or both parties!
             _buffer = new byte[MaxAllowedPacketSize];
             _ns.BeginRead(_buffer, 0, MaxAllowedPacketSize, OnPacket, null);
+
+            Log("Connected.");
+            if (OnConnectionStateChange != null)
+                OnConnectionStateChange(ConnectionStateChange.Connected);
         }
 
+        /// <summary>
+        ///     Outputs a log to <see cref="OnLog" />
+        /// </summary>
+        /// <param name="message"></param>
+        private void Log(string message)
+        {
+            if (OnLog != null)
+                OnLog(message);
+        }
+
+        /// <summary>
+        ///     Disconnects the client from the server
+        /// </summary>
+        public void Disconnect()
+        {
+            if (_client.Connected)
+            {
+                _client.Client.Disconnect(false);
+                if (OnConnectionStateChange != null)
+                    OnConnectionStateChange(ConnectionStateChange.Disconnected);
+            }
+
+            _client.Close();
+        }
+
+        /// <summary>
+        ///     Sends the authentication to the server
+        /// </summary>
+        /// <param name="password">RCON Password</param>
         public void Authenticate(string password)
         {
             _packetId++;
@@ -49,12 +169,18 @@ namespace RCONServerLib
             SendPacket(packet);
         }
 
+        /// <summary>
+        ///     Sends a RCON Command to the server
+        /// </summary>
+        /// <param name="command">The RCON command with parameters</param>
+        /// <param name="resultFunc">A function that will be executed after the server has processed the request</param>
+        /// <exception cref="NotAuthenticatedException">If we're not authenticated</exception>
         public void SendCommand(string command, CommandResult resultFunc)
         {
             if (!_client.Connected)
                 return;
 
-            if (!_authenticated)
+            if (!Authenticated)
                 throw new NotAuthenticatedException();
 
             _packetId++;
@@ -80,31 +206,52 @@ namespace RCONServerLib
         }
 
         /// <summary>
-        ///     Handles packets
         /// </summary>
         /// <param name="result"></param>
         private void OnPacket(IAsyncResult result)
         {
-            var bytesRead = _ns.EndRead(result);
-            if (!_client.Connected)
-                return;
-
-            if (bytesRead == 0)
+            try
             {
+                var bytesRead = _ns.EndRead(result);
+                if (!_client.Connected)
+                {
+                    if (OnConnectionStateChange != null)
+                        OnConnectionStateChange(ConnectionStateChange.ConnectionLost);
+                    return;
+                }
+
+                if (bytesRead == 0)
+                {
+                    _buffer = new byte[MaxAllowedPacketSize];
+                    _ns.BeginRead(_buffer, 0, MaxAllowedPacketSize, OnPacket, null);
+                    return;
+                }
+
+                Array.Resize(ref _buffer, bytesRead);
+
+                ParsePacket(_buffer);
+
+                if (!_client.Connected)
+                {
+                    if (OnConnectionStateChange != null)
+                        OnConnectionStateChange(ConnectionStateChange.ConnectionLost);
+                    return;
+                }
+
                 _buffer = new byte[MaxAllowedPacketSize];
                 _ns.BeginRead(_buffer, 0, MaxAllowedPacketSize, OnPacket, null);
-                return;
             }
-
-            Array.Resize(ref _buffer, bytesRead);
-
-            ParsePacket(_buffer);
-
-            if (!_client.Connected)
-                return;
-
-            _buffer = new byte[MaxAllowedPacketSize];
-            _ns.BeginRead(_buffer, 0, MaxAllowedPacketSize, OnPacket, null);
+            catch (IOException)
+            {
+                if (OnConnectionStateChange != null)
+                    OnConnectionStateChange(ConnectionStateChange.ConnectionLost);
+                Disconnect();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Log(e.ToString());
+            }
         }
 
         /// <summary>
@@ -116,21 +263,24 @@ namespace RCONServerLib
             try
             {
                 var packet = new RemoteConPacket(rawPacket);
-                if (!_authenticated)
+                if (!Authenticated)
                 {
                     // ExecCommand is AuthResponse too.
                     if (packet.Type == RemoteConPacket.PacketType.ExecCommand)
-                    {
                         if (packet.Id == -1)
                         {
-                            _authenticated = false;
-                            Debug.WriteLine("Auth failed.");
+                            Log("Authentication failed.");
+                            Authenticated = false;
+                            if (OnAuthResult != null)
+                                OnAuthResult(false);
                         }
                         else
                         {
-                            _authenticated = true;
+                            Log("Authentication success.");
+                            Authenticated = true;
+                            if (OnAuthResult != null)
+                                OnAuthResult(false);
                         }
-                    }
 
                     return;
                 }
@@ -138,10 +288,13 @@ namespace RCONServerLib
                 if (_requestedCommands.ContainsKey(packet.Id) &&
                     packet.Type == RemoteConPacket.PacketType.ResponseValue)
                     _requestedCommands[packet.Id](packet.Payload);
+                else
+                    Log("Got packet with invalid id " + packet.Id);
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e);
+                Log(e.ToString());
             }
         }
     }

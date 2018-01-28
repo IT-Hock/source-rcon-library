@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EDB656EE-634B-4080-8293-73205470FCCF}</ProjectGuid>
+    <ProjectGuid>{F394E5AB-E3C0-4BF9-9BE7-BAE048B61B40}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RCONServerLibExample</RootNamespace>
-    <AssemblyName>RCONServerLibExample</AssemblyName>
+    <RootNamespace>ClientExample</RootNamespace>
+    <AssemblyName>ClientExample</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>6</LangVersion>
@@ -43,7 +43,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RCONServerLib\RCONServerLib.csproj">
+    <ProjectReference Include="..\..\RCONServerLib\RCONServerLib.csproj">
       <Project>{2efa0311-14ce-414b-9867-fc0d1ff6f6c4}</Project>
       <Name>RCONServerLib</Name>
     </ProjectReference>

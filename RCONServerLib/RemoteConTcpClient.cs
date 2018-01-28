@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using RCONServerLib.Utils;
@@ -135,8 +136,9 @@ namespace RCONServerLib
             try
             {
                 var bytesRead = _ns.EndRead(result);
-                if (!_connected)
+                if (!_tcp.Connected || !_connected)
                 {
+                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
                     CloseConnection();
                     return;
                 }
@@ -150,7 +152,7 @@ namespace RCONServerLib
 
                 if (_buffer[_buffer.Length - 1] != 0x0 || _buffer[_buffer.Length - 2] != 0x0)
                 {
-                    if(!_isUnitTest)
+                    if (!_isUnitTest)
                         _remoteConServer.LogDebug("Missing null-terminators!");
 #if DEBUG
                     Console.WriteLine("Packet missing null-terminators!");
@@ -162,8 +164,6 @@ namespace RCONServerLib
 
                 // Resize buffer to actual amount read.
                 Array.Resize(ref _buffer, bytesRead);
-                /*var buffer = new byte[bytesRead];
-                Array.Copy(_buffer, 0, buffer, 0, bytesRead);*/
 
                 ParsePacket(_buffer);
 
@@ -172,12 +172,22 @@ namespace RCONServerLib
 
                 if (!_connected)
                 {
+                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
                     CloseConnection();
                     return;
                 }
 
                 _buffer = new byte[MaxAllowedPacketSize];
                 _ns.BeginRead(_buffer, 0, MaxAllowedPacketSize, OnPacket, null);
+            }
+            catch (IOException)
+            {
+                _connected = false;
+                _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
+            }
+            catch (RconServerException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -294,6 +304,10 @@ namespace RCONServerLib
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
                         commandResult));
                 }
+            }
+            catch (RconServerException)
+            {
+                throw;
             }
             catch (Exception e)
             {

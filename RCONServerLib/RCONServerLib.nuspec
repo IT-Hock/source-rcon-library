@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>source-rcon-server</id>
-        <version>1.0.0</version>
+        <version>1.2.1</version>
         <title>Source RCON Server Lib</title>
         <authors>Julien H. (Subtixx)</authors>
         <owners>Julien H. (Subtixx)</owners>
