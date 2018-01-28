@@ -38,6 +38,20 @@ Install-Package source-rcon-server
 
 # Examples
 
+## Hosted Examples
+
+### Server
+
+![2018-01-28_12-49-23](https://user-images.githubusercontent.com/20743379/35481729-bf9a8478-0429-11e8-97b4-4ab4787b9b7c.gif)
+
+https://github.com/Subtixx/source-rcon-library/tree/master/Examples/ServerExample
+
+### Client
+
+![2018-01-28_12-52-10-e](https://user-images.githubusercontent.com/20743379/35481782-da71654a-042a-11e8-8345-d7ff9b47f749.gif)
+
+https://github.com/Subtixx/source-rcon-library/tree/master/Examples/ClientExample
+
 ## Setup
 
 ### Minimum setup server
