@@ -45,6 +45,7 @@
     <Compile Include="Utils\BinaryReaderExt.cs" />
     <Compile Include="Utils\BinaryWriterExt.cs" />
     <Compile Include="Utils\CommandManager.cs" />
+    <Compile Include="Utils\DateTimeExtensions.cs" />
     <Compile Include="Utils\Exceptions.cs" />
     <Compile Include="Utils\IpExtension.cs" />
   </ItemGroup>

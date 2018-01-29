@@ -11,6 +11,8 @@ namespace RCONServerLib
     {
         public delegate string CommandEventHandler(string command, IList<string> args);
 
+        private readonly List<TcpClient> _clients;
+
         private readonly TcpListener _listener;
 
         public readonly CommandManager CommandManager = new CommandManager();
@@ -26,8 +28,12 @@ namespace RCONServerLib
                 "192.*.*.*"
             };
             MaxPasswordTries = 3;
+            BanMinutes = 15;
             Password = "changeme";
             SendAuthImmediately = false;
+            IpBanList = new Dictionary<string, int>();
+            MaxConnectionsPerIp = 1;
+            MaxConnections = 5;
 
 #if DEBUG
             Debug = true;
@@ -35,8 +41,13 @@ namespace RCONServerLib
             Debug = false;
 #endif
 
+            _clients = new List<TcpClient>();
             _listener = new TcpListener(bindAddress, port);
         }
+
+        /// <summary>
+        /// </summary>
+        public Dictionary<string, int> IpBanList { get; set; }
 
         /// <summary>
         ///     When true closes the connection if the payload of the packet is empty.
@@ -74,7 +85,15 @@ namespace RCONServerLib
         public uint MaxPasswordTries { get; set; }
 
         /// <summary>
+        ///     How many minutes a client should be banned when he reached max password tries
+        ///     (Setting this to zero means no ban)
+        ///     Default: 15
+        /// </summary>
+        public int BanMinutes { get; set; }
+
+        /// <summary>
         ///     The password to access RCON
+        ///     Default: changeme
         /// </summary>
         public string Password { get; set; }
 
@@ -87,15 +106,34 @@ namespace RCONServerLib
 
         /// <summary>
         ///     Wether or not we should invoke <see cref="OnCommandReceived" /> instead of internally parsing the command
+        ///     Default: False
         /// </summary>
         public bool UseCustomCommandHandler { get; set; }
+
+        /// <summary>
+        ///     Should we debug the library
+        ///     Default: False (In Release), True (In Debug)
+        /// </summary>
+        public bool Debug { get; set; }
+
+        /// <summary>
+        ///     How many clients a single IP can connect to the server
+        ///     (Setting this to zero means unlimited)
+        ///     Default: 1
+        /// </summary>
+        public uint MaxConnectionsPerIp { get; set; }
+
+        /// <summary>
+        ///     How many clients can connect to the server
+        ///     (Setting this to zero means unlimited)
+        ///     Default: 5
+        /// </summary>
+        public uint MaxConnections { get; set; }
 
         /// <summary>
         ///     Event Handler to parse custom commands
         /// </summary>
         public event CommandEventHandler OnCommandReceived;
-
-        public bool Debug { get; set; }
 
         /// <summary>
         ///     Starts the TCPListener and begins accepting clients
@@ -104,7 +142,8 @@ namespace RCONServerLib
         {
             _listener.Start();
             _listener.BeginAcceptTcpClient(OnAccept, _listener);
-            LogDebug("Started listening on " + ((IPEndPoint)_listener.LocalEndpoint).Address + ", Password is: \"" + Password + "\"");
+            LogDebug("Started listening on " + ((IPEndPoint) _listener.LocalEndpoint).Address + ", Password is: \"" +
+                     Password + "\"");
         }
 
         public void StopListening()
@@ -116,16 +155,57 @@ namespace RCONServerLib
         {
             var tcpClient = _listener.EndAcceptTcpClient(result);
 
-            if (EnableIpWhitelist)
-                if (!IpWhitelist.Any(p =>
-                    IpExtension.Match(p, ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address.ToString())))
+            var ip = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address;
+
+            if (MaxConnections > 0)
+                if (_clients.Count >= MaxConnections)
                 {
+                    LogDebug("Rejected new connection from " + ip + " (Server full.)");
                     tcpClient.Close();
                     return;
                 }
 
-            LogDebug("Accepted new connection from " + ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address);
+            if (MaxConnectionsPerIp > 0)
+            {
+                var count = 0;
+                foreach (var tcpClient1 in _clients)
+                    if (((IPEndPoint) tcpClient1.Client.RemoteEndPoint).Address.ToString() == ip.ToString())
+                        count++;
+
+                if (count >= MaxConnectionsPerIp)
+                {
+                    LogDebug("Rejected new connection from " + ip + " (Too many connections from this IP)");
+                    tcpClient.Close();
+                    return;
+                }
+            }
+
+            if (EnableIpWhitelist)
+                if (!IpWhitelist.Any(p =>
+                    IpExtension.Match(p, ip.ToString())))
+                {
+                    LogDebug("Rejected new connection from " + ip + " (Not in whitelist)");
+                    tcpClient.Close();
+                    return;
+                }
+
+            if (IpBanList.ContainsKey(ip.ToString()))
+            {
+                if (IpBanList[ip.ToString()] - DateTime.Now.ToUnixTimestamp() > 0)
+                {
+                    LogDebug("Rejected new connection from " + ip + " (Banned till " +
+                             DateTimeExtensions.FromUnixTimestamp(IpBanList[ip.ToString()]).ToString("F") + ")");
+                    tcpClient.Close();
+                    return;
+                }
+
+                IpBanList.Remove(ip.ToString());
+            }
+
+            LogDebug("Accepted new connection from " + ip);
             var client = new RemoteConTcpClient(tcpClient, this);
+
+            _clients.Add(tcpClient);
 
             _listener.BeginAcceptTcpClient(OnAccept, _listener);
         }

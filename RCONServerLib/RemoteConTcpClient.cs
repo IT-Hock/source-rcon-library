@@ -205,9 +205,9 @@ namespace RCONServerLib
             {
                 var packet = new RemoteConPacket(rawPacket);
 
-                if(!_isUnitTest)
+                if (!_isUnitTest)
                     _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " sent packet " +
-                                          packet.Type + "!");
+                                              packet.Type + "!");
 
                 // Do not allow any other packets than auth to be sent when client is not authenticated
                 if (!Authenticated)
@@ -223,9 +223,9 @@ namespace RCONServerLib
 
                     if (packet.Payload == _remoteConServer.Password)
                     {
-                        if(!_isUnitTest)
+                        if (!_isUnitTest)
                             _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
-                                                  " successfully authenticated!");
+                                                      " successfully authenticated!");
                         Authenticated = true;
 
                         if (!_remoteConServer.SendAuthImmediately)
@@ -237,13 +237,19 @@ namespace RCONServerLib
 
                     if (_authTries >= _remoteConServer.MaxPasswordTries)
                     {
+                        if (_remoteConServer.BanMinutes > 0)
+                        {
+                            _remoteConServer.IpBanList.Add(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address.ToString(),
+                                DateTime.Now.AddMinutes(_remoteConServer.BanMinutes).ToUnixTimestamp());
+                        }
+
                         CloseConnection();
                         return;
                     }
 
-                    if(!_isUnitTest)
+                    if (!_isUnitTest)
                         _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
-                                              " entered wrong password!");
+                                                  " entered wrong password!");
 
                     if (!_remoteConServer.SendAuthImmediately)
                         SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
@@ -258,7 +264,7 @@ namespace RCONServerLib
                 {
                     if (_isUnitTest)
                         throw new InvalidPacketTypeException();
-                    
+
                     _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
                                               " sent a packet with invalid type!");
 
@@ -313,8 +319,8 @@ namespace RCONServerLib
             {
                 if (_isUnitTest)
                     throw;
-                
-                if(!_isUnitTest)
+
+                if (!_isUnitTest)
                     _remoteConServer.LogDebug(string.Format("Client {0} caused an exception: {1} and was killed.",
                         ((IPEndPoint) _tcp.Client.RemoteEndPoint).Address, e.Message));
 

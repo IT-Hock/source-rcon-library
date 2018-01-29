@@ -15,6 +15,11 @@ IP Whitelisting and a command manager
         * [Password](#password)
         * [SendAuthImmediately](#sendauthimmediately)
         * [UseCustomCommandHandler / OnCommandReceived](#usecustomcommandhandler-/-oncommandreceived)
+        * [Debug](#debug)
+        * [MaxConnectionsPerIp](#maxconnectionsperip)
+        * [MaxConnections](#maxconnections)
+        * [IpBanList](#ipbanlist)
+        * [BanMinutes](#banminutes)
     * [Adding Commands](#adding-commands)
         * [LAMBDA](#lambda-expression)
         * [Class Method](#class-method)
@@ -102,6 +107,29 @@ If you've trouble using a specific client, and haven't tried setting this to tru
 Sometimes you just want to do it yourself. Setting `UseCustomCommandHandler` to true and adding an eventhandler
 to `OnCommandReceived` will ignore the built-in CommandManager and sent all commands to the eventhandler instead
 
+### Debug
+
+This will sent debug messages to `System.Diagnostics.Debug.WriteLine` and `Console.WriteLine`
+
+### MaxConnectionsPerIp
+
+To disallow spamming the server with connections you can limit how many clients can connect from a single IP
+
+### MaxConnections
+
+With this setting you can limit how many total connections the server accepts at once
+
+### IpBanList
+
+Temporary list of IPs which are banned. You have to handle saving and loading yourself. Additionally this allows you
+to make a command (For example called `rcon-ban` to ban specific clients from the RCON connections). The value
+(since it's a dictionary) specifies the unix timestamp (Use `DateTimeExtensions` to get that value) when the ban is lifted.
+To ban someone forever you can use `int.MaxValue`
+
+### BanMinutes
+
+This specifies how long a client will be banned when he fails to authenticate `MaxPasswordTries`.
+
 ## Adding Commands
 
 There are two main ways to create commands, either as [LAMBDA expression](#lambda-expression)
@@ -152,9 +180,12 @@ public static class Program
 }
 ```
 
+## Contributing
+
+Not much here yet. Feel free to fork and sent pull-requests.
+
 ## ToDo List
 
-* [ ] Ban List
 * [ ] Split packets at 4096 bytes
 
 ## References
