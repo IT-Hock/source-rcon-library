@@ -1,7 +1,32 @@
-# ![Logo](https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png) Source RCON Library [![Maintenance](https://img.shields.io/maintenance/yes/2018.svg)]()
+<p align="center">
+    <img alt="source-rcon-logo" src="https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png">
+</p>
 
-Source RCON Library is an easy to use, single-class solution to create a [Valve source RCON](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) server
-which supports authentication, IP Whitelisting, a command manager and much more!
+<p align="center">
+    <img src="https://img.shields.io/maintenance/yes/2018.svg?style=flat-square">
+</p>
+
+<h3 align="center">
+  Source RCON Library
+</h3>
+
+<p align="center">
+  Source RCON Library is an easy to use, single-class solution to create a <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Valve source RCON</a> server
+  which supports authentication, IP Whitelisting, a command manager and much more!
+</p>
+
+<p align="center">
+    <a href="https://www.nuget.org/packages/source-rcon-server"><img src="https://img.shields.io/nuget/v/source-rcon-server.svg?style=flat-square"></a>
+    <a href="https://www.nuget.org/packages/source-rcon-server"><img src="https://img.shields.io/nuget/dt/source-rcon-server.svg?style=flat-square"></a>
+</p>
+
+<p align="center">
+    <a href="https://ci.appveyor.com/project/Subtixx/source-rcon-library"><img src="https://img.shields.io/appveyor/ci/subtixx/source-rcon-library.svg?logo=appveyor&style=flat-square"></a>
+    <a href="https://ci.appveyor.com/project/Subtixx/source-rcon-library"><img src="https://img.shields.io/appveyor/tests/Subtixx/source-rcon-library.svg?logo=appveyor&style=flat-square"></a>
+    <a href="https://codecov.io/gh/Subtixx/source-rcon-library"><img src="https://img.shields.io/codecov/c/github/subtixx/source-rcon-library.svg?style=flat-square"></a>
+</p>
+
+# Table of contents
 
 * [NuGet](#nuget)
 * [Examples](#examples)
@@ -27,14 +52,6 @@ which supports authentication, IP Whitelisting, a command manager and much more!
 * [References](#references)
 * [Contributing](#contributing)
 
-# Build and Tests Status
-
-[![AppVeyor](https://img.shields.io/appveyor/ci/subtixx/source-rcon-library.svg?logo=appveyor)](https://ci.appveyor.com/project/Subtixx/source-rcon-library)
-[![AppVeyor tests](https://img.shields.io/appveyor/tests/Subtixx/source-rcon-library.svg?logo=appveyor)](https://ci.appveyor.com/project/Subtixx/source-rcon-library)
-
-# Coverage
-
-[![Codecov](https://img.shields.io/codecov/c/github/subtixx/source-rcon-library.svg)](https://codecov.io/gh/Subtixx/source-rcon-library)
 
 # NuGet
 ```
