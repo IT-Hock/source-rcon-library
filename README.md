@@ -1,7 +1,7 @@
 # ![Logo](https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png) Source RCON Library [![Maintenance](https://img.shields.io/maintenance/yes/2018.svg)]()
 
-Source RCON Library is an easy to use, single-class solution to create a [Valve source RCON](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) server which supports authentication,
-IP Whitelisting and a command manager
+Source RCON Library is an easy to use, single-class solution to create a [Valve source RCON](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) server
+which supports authentication, IP Whitelisting, a command manager and much more!
 
 * [NuGet](#nuget)
 * [Examples](#examples)

@@ -7,7 +7,7 @@ namespace RCONServerLib.Utils
     /// </summary>
     public class CommandManager
     {
-        protected Dictionary<string, Command> Commands;
+        public Dictionary<string, Command> Commands { get; private set; }
 
         public CommandManager()
         {
