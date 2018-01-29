@@ -55,9 +55,9 @@ deploy:
 #    name: GithubRcon
 #    on:
 #      branch: release
-  - provider: NuGet
-    on:
-      branch: release
-    api_key:
-      secure: A+/eZB/j74UGv72c1pFKGxcjtu8KT6/rqbwwx+ZRifwDDK8lRUVo4FKubGPUgWAh
-    artifact: Nuget
+#  - provider: NuGet
+#    on:
+#      branch: release
+#    api_key:
+#      secure: A+/eZB/j74UGv72c1pFKGxcjtu8KT6/rqbwwx+ZRifwDDK8lRUVo4FKubGPUgWAh
+#    artifact: Nuget
