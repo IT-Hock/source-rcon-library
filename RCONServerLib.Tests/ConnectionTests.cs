@@ -12,13 +12,16 @@ namespace RCONServerLib.Tests
             server.StartListening();
 
             var client = new RemoteConClient();
-            client.OnAuthResult += Assert.False;
+            client.OnAuthResult += success =>
+            {
+                Assert.False(success);
+
+                client.Disconnect();
+                server.StopListening();
+            };
 
             client.Connect("127.0.0.1", 27015);
             client.Authenticate("unitfail");
-
-            client.Disconnect();
-            server.StopListening();
         }
 
         [Fact]

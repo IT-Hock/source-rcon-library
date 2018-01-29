@@ -99,6 +99,7 @@ namespace RCONServerLib
         {
             if (_isUnitTest)
                 return;
+            _remoteConServer.RemoveClient(_tcp);
             _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " connection closed.");
 
             _connected = false;
@@ -167,10 +168,7 @@ namespace RCONServerLib
 
                 ParsePacket(_buffer);
 
-                if (!_tcp.Connected)
-                    return;
-
-                if (!_connected)
+                if (!_connected || !_tcp.Connected)
                 {
                     _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
                     CloseConnection();
@@ -182,8 +180,8 @@ namespace RCONServerLib
             }
             catch (IOException)
             {
-                _connected = false;
                 _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
+                CloseConnection();
             }
             catch (RconServerException)
             {

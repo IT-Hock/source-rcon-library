@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using RCONServerLib.Utils;
 
 namespace RCONServerLib
@@ -148,7 +149,11 @@ namespace RCONServerLib
 
         public void StopListening()
         {
-            _listener.Stop();
+            if (!_listener.Server.IsBound)
+                return;
+            
+            _listener.Server.Shutdown(SocketShutdown.Both);
+            _listener.Server.Close(0);
         }
 
         private void OnAccept(IAsyncResult result)
@@ -222,6 +227,11 @@ namespace RCONServerLib
 
             System.Diagnostics.Debug.WriteLine(message);
             Console.WriteLine(message);
+        }
+
+        internal void RemoveClient(TcpClient client)
+        {
+            _clients.Remove(client);
         }
     }
 }
