@@ -93,6 +93,7 @@ namespace RCONServerLib.Tests
         public void TestCommandSuccess()
         {
             var server = new RemoteConServer(IPAddress.Any, 27015);
+		    server.CommandManager.Add("hello", "Replies with world", (command, args) => "world");
             server.StartListening();
 
             string commandResult = null;
