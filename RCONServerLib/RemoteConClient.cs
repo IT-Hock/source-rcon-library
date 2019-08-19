@@ -267,20 +267,21 @@ namespace RCONServerLib
                 {
                     // ExecCommand is AuthResponse too.
                     if (packet.Type == RemoteConPacket.PacketType.ExecCommand)
+                    {
                         if (packet.Id == -1)
                         {
                             Log("Authentication failed.");
                             Authenticated = false;
-                            if (OnAuthResult != null)
-                                OnAuthResult(false);
                         }
                         else
                         {
                             Log("Authentication success.");
                             Authenticated = true;
-                            if (OnAuthResult != null)
-                                OnAuthResult(false);
                         }
+
+                        if (OnAuthResult != null)
+                            OnAuthResult(Authenticated);
+                    }
 
                     return;
                 }
