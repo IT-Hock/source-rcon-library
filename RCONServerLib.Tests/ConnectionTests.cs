@@ -86,7 +86,7 @@ namespace RCONServerLib.Tests
                 waitEvent.WaitOne();
             }
 
-            Assert.Contains("invalid command", commandResult);
+            Assert.Contains("Invalid command", commandResult);
         }
 
         [Fact]
