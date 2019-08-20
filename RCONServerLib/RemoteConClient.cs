@@ -197,12 +197,19 @@ namespace RCONServerLib
         /// <exception cref="Exception">Not connected</exception>
         private void SendPacket(RemoteConPacket packet)
         {
-            if (!_client.Connected)
+            if (_client == null || !_client.Connected)
                 throw new Exception("Not connected.");
 
             var packetBytes = packet.GetBytes();
-            //_ns.Write(packetBytes, 0, packetBytes.Length);
-            _ns.BeginWrite(packetBytes, 0, packetBytes.Length - 1, ar => { _ns.EndWrite(ar); }, null);
+
+            try
+            {
+                _ns.BeginWrite(packetBytes, 0, packetBytes.Length - 1, ar => { _ns.EndWrite(ar); }, null);
+            }
+            catch (ObjectDisposedException)
+            {
+                // Do not write to socket when its disposed.
+            }
         }
 
         /// <summary>
