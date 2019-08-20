@@ -151,14 +151,22 @@ namespace RCONServerLib
         {
             if (!_listener.Server.IsBound)
                 return;
-            
-            _listener.Server.Shutdown(SocketShutdown.Both);
-            _listener.Server.Close(0);
+
+            _listener.Stop();
         }
 
         private void OnAccept(IAsyncResult result)
         {
-            var tcpClient = _listener.EndAcceptTcpClient(result);
+            TcpClient tcpClient;
+            try
+            {
+                tcpClient = _listener.EndAcceptTcpClient(result);
+            }
+            catch (ObjectDisposedException)
+            {
+                LogDebug("Socket was closed");
+                return;
+            }
 
             var ip = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address;
 

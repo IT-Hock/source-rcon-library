@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using System.Threading;
 using Xunit;
 
 namespace RCONServerLib.Tests
@@ -11,17 +13,23 @@ namespace RCONServerLib.Tests
             var server = new RemoteConServer(IPAddress.Any, 27015);
             server.StartListening();
 
-            var client = new RemoteConClient();
-            client.OnAuthResult += success =>
+            bool authResult = false;
+            using (var waitEvent = new AutoResetEvent(false))
             {
-                Assert.False(success);
+                var client = new RemoteConClient();
+                client.OnAuthResult += success =>
+                {
+                    authResult = success;
 
-                client.Disconnect();
-                server.StopListening();
-            };
+                    client.Disconnect();
+                    server.StopListening();
+                };
 
-            client.Connect("127.0.0.1", 27015);
-            client.Authenticate("unitfail");
+                client.Connect("127.0.0.1", 27015);
+                client.Authenticate("unitfail");
+            }
+
+            Assert.False(authResult);
         }
 
         [Fact]
@@ -30,17 +38,25 @@ namespace RCONServerLib.Tests
             var server = new RemoteConServer(IPAddress.Any, 27015);
             server.StartListening();
 
-            var client = new RemoteConClient();
-            client.OnAuthResult += success =>
+            bool authResult = false;
+            using (var waitEvent = new AutoResetEvent(false))
             {
-                Assert.True(success);
+                var client = new RemoteConClient();
+                client.OnAuthResult += success =>
+                {
+                    authResult = success; 
 
-                client.Disconnect();
-                server.StopListening();
-            };
+                    client.Disconnect();
+                    server.StopListening();
+                    waitEvent.Set();
+                };
 
-            client.Connect("127.0.0.1", 27015);
-            client.Authenticate("changeme");
+                client.Connect("127.0.0.1", 27015);
+                client.Authenticate("changeme");
+                waitEvent.WaitOne();
+            }
+
+            Assert.True(authResult);
         }
 
         [Fact]
@@ -49,44 +65,59 @@ namespace RCONServerLib.Tests
             var server = new RemoteConServer(IPAddress.Any, 27015);
             server.StartListening();
 
-            var client = new RemoteConClient();
-            client.OnAuthResult += success =>
+            string commandResult = null;
+            using (var waitEvent = new AutoResetEvent(false))
             {
-                //Assert.True(success);
-                client.SendCommand("testing", result =>
+                var client = new RemoteConClient();
+                client.OnAuthResult += success =>
                 {
-                    Assert.Contains("invalid command", result);
+                    client.SendCommand("testing", result =>
+                    {
+                        commandResult = result;
 
-                    client.Disconnect();
-                    server.StopListening();
-                });
-            };
+                        client.Disconnect();
+                        server.StopListening();
+                        waitEvent.Set();
+                    });
+                };
 
-            client.Connect("127.0.0.1", 27015);
-            client.Authenticate("changeme");
+                client.Connect("127.0.0.1", 27015);
+                client.Authenticate("changeme");
+                waitEvent.WaitOne();
+            }
+
+            Assert.Contains("Invalid command", commandResult);
         }
 
         [Fact]
         public void TestCommandSuccess()
         {
             var server = new RemoteConServer(IPAddress.Any, 27015);
+		    server.CommandManager.Add("hello", "Replies with world", (command, args) => "world");
             server.StartListening();
 
-            var client = new RemoteConClient();
-            client.OnAuthResult += success =>
+            string commandResult = null;
+            using (var waitEvent = new AutoResetEvent(false))
             {
-                //Assert.True(success);
-                client.SendCommand("hello", result =>
+                var client = new RemoteConClient();
+                client.OnAuthResult += success =>
                 {
-                    Assert.Contains("world", result);
+                    client.SendCommand("hello", result =>
+                    {
+                        commandResult = result;
 
-                    client.Disconnect();
-                    server.StopListening();
-                });
-            };
+                        client.Disconnect();
+                        server.StopListening();
+                        waitEvent.Set();
+                    });
+                };
 
-            client.Connect("127.0.0.1", 27015);
-            client.Authenticate("changeme");
+                client.Connect("127.0.0.1", 27015);
+                client.Authenticate("changeme");
+                waitEvent.WaitOne();
+            }
+
+            Assert.Contains("world", commandResult);
         }
     }
 }

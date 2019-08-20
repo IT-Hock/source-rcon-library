@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using RCONServerLib.Utils;
 
 namespace RCONServerLib
@@ -181,6 +182,11 @@ namespace RCONServerLib
             catch (IOException)
             {
                 _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
+                CloseConnection();
+            }
+            catch (ThreadAbortException)
+            {
+                _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " socket closed.");
                 CloseConnection();
             }
             catch (RconServerException)
