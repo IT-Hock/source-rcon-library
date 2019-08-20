@@ -220,6 +220,9 @@ namespace RCONServerLib
 
             _clients.Add(tcpClient);
 
+            if (!_listener.Server.IsBound)
+                return;
+
             _listener.BeginAcceptTcpClient(OnAccept, _listener);
         }
 
