@@ -206,10 +206,8 @@ namespace RCONServerLib
             {
                 _ns.BeginWrite(packetBytes, 0, packetBytes.Length - 1, ar => { _ns.EndWrite(ar); }, null);
             }
-            catch (ObjectDisposedException)
-            {
-                // Do not write to socket when its disposed.
-            }
+            catch (ObjectDisposedException) { } // Do not write to NetworkStream when it's closed.
+            catch (IOException) { } // Do not write to Socket when it's closed.
         }
 
         /// <summary>
