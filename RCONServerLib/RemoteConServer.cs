@@ -20,6 +20,7 @@ namespace RCONServerLib
 
         public RemoteConServer(IPAddress bindAddress, int port)
         {
+            UseUTF8 = false;
             EmptyPayloadKick = true;
             EnableIpWhitelist = true;
             InvalidPacketKick = true;
@@ -49,6 +50,12 @@ namespace RCONServerLib
         /// <summary>
         /// </summary>
         public Dictionary<string, int> IpBanList { get; set; }
+
+        /// <summary>
+        ///     Whether to use UTF8 to encode packet payloads.
+        ///     Default: False
+        /// </summary>
+        public bool UseUTF8 { get; set; }
 
         /// <summary>
         ///     When true closes the connection if the payload of the packet is empty.
