@@ -23,10 +23,12 @@ namespace RCONServerLib.Tests
 
                     client.Disconnect();
                     server.StopListening();
+                    waitEvent.Set();
                 };
 
                 client.Connect("127.0.0.1", 27015);
                 client.Authenticate("unitfail");
+                waitEvent.WaitOne();
             }
 
             Assert.False(authResult);
