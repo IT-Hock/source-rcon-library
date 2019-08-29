@@ -31,6 +31,22 @@ namespace RCONServerLib.Tests
             }, useUTF8));
         }
 
+        [Fact]
+        public void RconPacketTooLongTest()
+        {
+            var bytes = new byte[4096];
+            Array.Copy(new byte[]
+            {
+                0xFC, 0x0F, 0x00, 0x00, // Size - 4092
+                0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00
+            }, 0, bytes, 0, 12);
+            bytes[4094] = 0x00;
+            bytes[4095] = 0x00;
+            for (var i = 13; i < 4094; i++) bytes[i] = 0xFF;
+            Assert.Throws<NullTerminatorMissingException>(() => new RemoteConPacket(bytes));
+        }
+        
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
