@@ -8,14 +8,18 @@ namespace RCONServerLib.Tests
 {
     public class Tests
     {
-        [Fact]
-        public void RconPacketLengthTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RconPacketLengthTest(bool useUTF8)
         {
-            Assert.Throws<LengthMismatchException>(() => new RemoteConPacket(new byte[] {0xFF, 0xFF, 0x00, 0x00}));
+            Assert.Throws<LengthMismatchException>(() => new RemoteConPacket(new byte[] {0xFF, 0xFF, 0x00, 0x00}, useUTF8));
         }
 
-        [Fact]
-        public void RconPacketNullTerminatorEndTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RconPacketNullTerminatorEndTest(bool useUTF8)
         {
             Assert.Throws<NullTerminatorMissingException>(() => new RemoteConPacket(new byte[]
             {
@@ -24,7 +28,7 @@ namespace RCONServerLib.Tests
                 0x00, 0x00, 0x00, 0x00, // Type
                 0x00, // Payload
                 0x01 // Null-terminator end
-            }));
+            }, useUTF8));
         }
 
         [Fact]
@@ -42,16 +46,18 @@ namespace RCONServerLib.Tests
             for (var i = 13; i < 4094; i++) bytes[i] = 0xFF;
             Assert.Throws<NullTerminatorMissingException>(() => new RemoteConPacket(bytes));
         }
-
-        [Fact]
-        public void RconPacketTypeTest()
+        
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RconPacketTypeTest(bool useUTF8)
         {
             Assert.Throws<InvalidPacketTypeException>(() => new RemoteConPacket(new byte[]
             {
                 0x08, 0x00, 0x00, 0x00, // Size
                 0x00, 0x00, 0x00, 0x00, // Id
                 0xFF, 0xFF, 0x00, 0x00 // Type
-            }));
+            }, useUTF8));
         }
 
         [Fact]
@@ -66,8 +72,10 @@ namespace RCONServerLib.Tests
             Assert.False(IpExtension.Match("192.*.*.*", "178.75.68.49"));
         }
 
-        [Fact]
-        public void RconPacketSuccessTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RconPacketSuccessTest(bool useUTF8)
         {
             var packet = new RemoteConPacket(new byte[]
             {
@@ -76,15 +84,17 @@ namespace RCONServerLib.Tests
                 0x03, 0x00, 0x00, 0x00, // Type
                 0x00,
                 0x00,
-            });
+            }, useUTF8);
 
             Assert.Equal(2, packet.Id);
             Assert.Equal(10, packet.Size);
             Assert.Equal(RemoteConPacket.PacketType.Auth, packet.Type);
         }
 
-        [Fact]
-        public void RconPacketGetBytesTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RconPacketGetBytesTest(bool useUTF8)
         {
             var testBytes = new byte[]
             {
@@ -94,7 +104,7 @@ namespace RCONServerLib.Tests
                 0x00,
                 0x00,
             };
-            var packet = new RemoteConPacket(2, RemoteConPacket.PacketType.Auth, "");
+            var packet = new RemoteConPacket(2, RemoteConPacket.PacketType.Auth, "", useUTF8);
 
             var packetBytes = packet.GetBytes();
             for (var index = 0; index < testBytes.Length; index++)

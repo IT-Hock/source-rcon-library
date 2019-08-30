@@ -6,11 +6,14 @@ namespace RCONServerLib.Tests
 {
     public class RemoteConTests
     {
-	    [Fact]
-	    public void RemoteConInvalidAuthPacketTypeTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConInvalidAuthPacketTypeTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    
@@ -27,12 +30,15 @@ namespace RCONServerLib.Tests
 			    });
 		    });
 	    }
-	    
-	    [Fact]
-	    public void RemoteConAuthFailureTest()
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConAuthFailureTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    
@@ -47,14 +53,17 @@ namespace RCONServerLib.Tests
 		    });
 	    }
 
-	    [Fact]
-	    public void RemoteConAuthSuccessTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConAuthSuccessTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015)
 		    {
 			    Password = "supersecretpassword"
 		    };
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    
@@ -69,11 +78,14 @@ namespace RCONServerLib.Tests
 		    });
 	    }
 
-	    [Fact]
-	    public void RemoteConInvalidCommandTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConInvalidCommandTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
@@ -89,11 +101,14 @@ namespace RCONServerLib.Tests
 		    });
 	    }
 
-	    [Fact]
-	    public void RemoteConCommandTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConCommandTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
@@ -109,11 +124,14 @@ namespace RCONServerLib.Tests
 		    });
 	    }
 
-	    [Fact]
-	    public void RemoteConEmptyPayloadTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConEmptyPayloadTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;
@@ -131,12 +149,15 @@ namespace RCONServerLib.Tests
 			    });			    
 		    });
 	    }
-	    
-	    [Fact]
-	    public void RemoteConInvalidPacketTypeTest()
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RemoteConInvalidPacketTypeTest(bool useUTF8)
 	    {
 		    var server = new RemoteConServer(IPAddress.Any, 27015);
 		    server.CommandManager.Add("test", "Test", (command, args) => "test");
+            server.UseUTF8 = useUTF8;
 		    
 		    var client = new RemoteConTcpClient(server);
 		    client.Authenticated = true;

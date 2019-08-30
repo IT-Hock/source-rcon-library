@@ -43,8 +43,17 @@ namespace RCONServerLib
         /// </summary>
         public readonly PacketType Type;
 
-        public RemoteConPacket(byte[] packetBytes)
+        /// <summary>
+        ///     Indicates the encoding of the packet payload.
+        ///     Is either ASCII or UTF8
+        /// </summary>
+        private readonly Encoding _packetEncoding = Encoding.ASCII;
+
+        public RemoteConPacket(byte[] packetBytes, bool useUTF8 = false)
         {
+            if (useUTF8)
+                _packetEncoding = Encoding.UTF8;
+
             using (var ms = new MemoryStream(packetBytes))
             {
                 using (var reader = new BinaryReaderExt(ms))
@@ -62,11 +71,19 @@ namespace RCONServerLib
                         throw new InvalidPacketTypeException("Invalid packet type");
                     Type = (PacketType) Enum.ToObject(typeof(PacketType), packetType);
 
-                    Payload = reader.ReadAscii();
+                    if (!useUTF8)
+                    {
+                        Payload = reader.ReadAscii();
 
-                    // Get payload length by subtracting 9 bytes (ID 4-Bytes, Type 4-Bytes, Null-terminator 1-Byte)
-                    if (Encoding.ASCII.GetByteCount(Payload) > Size - 9)
-                        throw new LengthMismatchException("Payload length mismatch");
+                        // Get payload length by subtracting 9 bytes (ID 4-Bytes, Type 4-Bytes, Null-terminator 1-Byte)
+                        if (Encoding.ASCII.GetByteCount(Payload) > Size - 9)
+                            throw new LengthMismatchException("Payload length mismatch");
+                    }
+                    else
+                    {
+                        Payload = Encoding.UTF8.GetString(reader.ReadBytes(Size - 10));
+                        reader.ReadByte();
+                    }
 
                     var nullTerminator = reader.ReadByte();
                     if (nullTerminator != 0x00)
@@ -78,8 +95,11 @@ namespace RCONServerLib
             }
         }
 
-        public RemoteConPacket(int id, PacketType type, string payload)
+        public RemoteConPacket(int id, PacketType type, string payload, bool useUTF8 = false)
         {
+            if (useUTF8)
+                _packetEncoding = Encoding.UTF8;
+
             Payload = payload;
             Id = id;
             Type = type;
@@ -92,7 +112,7 @@ namespace RCONServerLib
         /// </summary>
         public int Length
         {
-            get { return Encoding.ASCII.GetBytes(Payload + '\0').Length + 13; }
+            get { return _packetEncoding.GetBytes(Payload + '\0').Length + 13; }
         }
 
         /// <summary>
@@ -105,7 +125,7 @@ namespace RCONServerLib
             {
                 using (var writer = new BinaryWriterExt(ms))
                 {
-                    var bodyBytes = Encoding.ASCII.GetBytes(Payload + '\0');
+                    var bodyBytes = _packetEncoding.GetBytes(Payload + '\0');
                     writer.WriteLittleEndian(bodyBytes.Length + 9);
                     writer.WriteLittleEndian(Id);
                     writer.WriteLittleEndian((int) Type);

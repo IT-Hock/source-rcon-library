@@ -74,6 +74,8 @@ namespace RCONServerLib
 
             _packetId = 0;
             _requestedCommands = new Dictionary<int, CommandResult>();
+
+            UseUTF8 = false;
         }
 
         /// <summary>
@@ -83,6 +85,11 @@ namespace RCONServerLib
         {
             get { return _client.Connected; }
         }
+
+        /// <summary>
+        ///     Whether to use UTF8 to encode the packet payload
+        /// </summary>
+        public bool UseUTF8 { get; set; }
 
         /// <summary>
         ///     An event handler when the result of the authentication is received
@@ -165,7 +172,7 @@ namespace RCONServerLib
         public void Authenticate(string password)
         {
             _packetId++;
-            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.Auth, password);
+            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.Auth, password, UseUTF8);
             SendPacket(packet);
         }
 
@@ -186,7 +193,7 @@ namespace RCONServerLib
             _packetId++;
             _requestedCommands.Add(_packetId, resultFunc);
 
-            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.ExecCommand, command);
+            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.ExecCommand, command, UseUTF8);
             SendPacket(packet);
         }
 
@@ -206,10 +213,8 @@ namespace RCONServerLib
             {
                 _ns.BeginWrite(packetBytes, 0, packetBytes.Length - 1, ar => { _ns.EndWrite(ar); }, null);
             }
-            catch (ObjectDisposedException)
-            {
-                // Do not write to socket when its disposed.
-            }
+            catch (ObjectDisposedException) { } // Do not write to NetworkStream when it's closed.
+            catch (IOException) { } // Do not write to Socket when it's closed.
         }
 
         /// <summary>
@@ -269,7 +274,7 @@ namespace RCONServerLib
         {
             try
             {
-                var packet = new RemoteConPacket(rawPacket);
+                var packet = new RemoteConPacket(rawPacket, UseUTF8);
                 if (!Authenticated)
                 {
                     // ExecCommand is AuthResponse too.

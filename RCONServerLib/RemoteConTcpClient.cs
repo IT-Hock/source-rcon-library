@@ -207,7 +207,7 @@ namespace RCONServerLib
         {
             try
             {
-                var packet = new RemoteConPacket(rawPacket);
+                var packet = new RemoteConPacket(rawPacket, _remoteConServer.UseUTF8);
 
                 if (!_isUnitTest)
                     _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " sent packet " +
@@ -233,9 +233,9 @@ namespace RCONServerLib
                         Authenticated = true;
 
                         if (!_remoteConServer.SendAuthImmediately)
-                            SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
+                            SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, "", _remoteConServer.UseUTF8));
 
-                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ExecCommand, ""));
+                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ExecCommand, "", _remoteConServer.UseUTF8));
                         return;
                     }
 
@@ -256,9 +256,9 @@ namespace RCONServerLib
                                                   " entered wrong password!");
 
                     if (!_remoteConServer.SendAuthImmediately)
-                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, ""));
+                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, "", _remoteConServer.UseUTF8));
 
-                    SendPacket(new RemoteConPacket(-1, RemoteConPacket.PacketType.ExecCommand, ""));
+                    SendPacket(new RemoteConPacket(-1, RemoteConPacket.PacketType.ExecCommand, "", _remoteConServer.UseUTF8));
 
                     return;
                 }
@@ -297,7 +297,7 @@ namespace RCONServerLib
                 {
                     var result = _remoteConServer.ExecuteCustomCommandHandler(cmd, args);
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        result));
+                        result, _remoteConServer.UseUTF8));
                     return;
                 }
 
@@ -305,14 +305,14 @@ namespace RCONServerLib
                 if (command == null)
                 {
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        "Invalid command \"" + packet.Payload + "\""));
+                        "Invalid command \"" + packet.Payload + "\"", _remoteConServer.UseUTF8));
                 }
                 else
                 {
                     var commandResult = command.Handler(cmd, args);
                     // TODO: Split packets?
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        commandResult));
+                        commandResult, _remoteConServer.UseUTF8));
                 }
             }
             catch (RconServerException)
