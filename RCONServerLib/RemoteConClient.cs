@@ -33,6 +33,8 @@ namespace RCONServerLib
         {
             Connected,
             Disconnected,
+            NoConnection,
+            ConnectionTimeout,
             ConnectionLost
         }
 
@@ -41,7 +43,7 @@ namespace RCONServerLib
         /// <summary>
         ///     The TCP Client
         /// </summary>
-        private readonly TcpClient _client;
+        private TcpClient _client;
 
         /// <summary>
         ///     A list containing all requested commands for event handling
@@ -118,12 +120,40 @@ namespace RCONServerLib
             Log(string.Format("Connecting to {0}:{1}", hostname, port));
             try
             {
-                _client.Connect(hostname, port);
+                IAsyncResult ar = null;
+                try
+                {
+                    ar = _client.BeginConnect(hostname, port, null, null);
+                }
+                catch (ObjectDisposedException)
+                {
+                    _client = new TcpClient();
+                    try
+                    {
+                        ar = _client.BeginConnect(hostname, port, null, null);
+                    }
+                    catch (Exception e)
+                    {
+                        Log("Unknown Exception");
+                    }
+                }
+                ar.AsyncWaitHandle.WaitOne(2000); // wait 2 seconds
+                if (!ar.IsCompleted)
+                {
+                    if (OnConnectionStateChange != null)
+                    {
+                        OnConnectionStateChange(ConnectionStateChange.NoConnection);
+                    }
+                    _client.Client.Close();
+                }
             }
             catch (SocketException)
             {
                 if (OnConnectionStateChange != null)
-                    OnConnectionStateChange(ConnectionStateChange.ConnectionLost);
+                {
+                    OnConnectionStateChange(ConnectionStateChange.ConnectionTimeout);
+                    _client.Client.Close();
+                }
                 return;
             }
 
