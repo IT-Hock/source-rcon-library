@@ -328,11 +328,14 @@ namespace RCONServerLib
                     return;
                 }
 
-                if (_requestedCommands.ContainsKey(packet.Id) &&
-                    packet.Type == RemoteConPacket.PacketType.ResponseValue)
+                if (_requestedCommands.ContainsKey(packet.Id) && packet.Type == RemoteConPacket.PacketType.ResponseValue)
+                {
                     _requestedCommands[packet.Id](packet.Payload);
+                }
                 else
+                {
                     Log("Got packet with invalid id " + packet.Id);
+                }
             }
             catch (Exception e)
             {
