@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -101,7 +100,7 @@ namespace RCONServerLib
             if (_isUnitTest)
                 return;
             _remoteConServer.RemoveClient(_tcp);
-            _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " connection closed.");
+            _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address + " connection closed.");
 
             _connected = false;
 
@@ -140,7 +139,7 @@ namespace RCONServerLib
                 var bytesRead = _ns.EndRead(result);
                 if (!_tcp.Connected || !_connected)
                 {
-                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
+                    _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address + " lost connection.");
                     CloseConnection();
                     return;
                 }
@@ -171,7 +170,7 @@ namespace RCONServerLib
 
                 if (!_connected || !_tcp.Connected)
                 {
-                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
+                    _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address + " lost connection.");
                     CloseConnection();
                     return;
                 }
@@ -181,12 +180,12 @@ namespace RCONServerLib
             }
             catch (IOException)
             {
-                _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " lost connection.");
+                _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address + " lost connection.");
                 CloseConnection();
             }
             catch (ThreadAbortException)
             {
-                _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " socket closed.");
+                _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address + " socket closed.");
                 CloseConnection();
             }
             catch (RconServerException)
@@ -207,10 +206,10 @@ namespace RCONServerLib
         {
             try
             {
-                var packet = new RemoteConPacket(rawPacket, _remoteConServer.UseUTF8);
+                var packet = new RemoteConPacket(rawPacket, _remoteConServer.UseUtf8);
 
                 if (!_isUnitTest)
-                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address + " sent packet " +
+                    _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address + " sent packet " +
                                               packet.Type + "!");
 
                 // Do not allow any other packets than auth to be sent when client is not authenticated
@@ -228,37 +227,39 @@ namespace RCONServerLib
                     if (packet.Payload == _remoteConServer.Password)
                     {
                         if (!_isUnitTest)
-                            _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
+                            _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address +
                                                       " successfully authenticated!");
                         Authenticated = true;
 
                         if (!_remoteConServer.SendAuthImmediately)
-                            SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, "", _remoteConServer.UseUTF8));
+                            SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, "",
+                                _remoteConServer.UseUtf8));
 
-                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ExecCommand, "", _remoteConServer.UseUTF8));
+                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ExecCommand, "",
+                            _remoteConServer.UseUtf8));
                         return;
                     }
 
                     if (_authTries >= _remoteConServer.MaxPasswordTries)
                     {
                         if (_remoteConServer.BanMinutes > 0)
-                        {
-                            _remoteConServer.IpBanList.Add(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address.ToString(),
+                            _remoteConServer.IpBanList.Add(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address.ToString(),
                                 DateTime.Now.AddMinutes(_remoteConServer.BanMinutes).ToUnixTimestamp());
-                        }
 
                         CloseConnection();
                         return;
                     }
 
                     if (!_isUnitTest)
-                        _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
+                        _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address +
                                                   " entered wrong password!");
 
                     if (!_remoteConServer.SendAuthImmediately)
-                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, "", _remoteConServer.UseUTF8));
+                        SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue, "",
+                            _remoteConServer.UseUtf8));
 
-                    SendPacket(new RemoteConPacket(-1, RemoteConPacket.PacketType.ExecCommand, "", _remoteConServer.UseUTF8));
+                    SendPacket(new RemoteConPacket(-1, RemoteConPacket.PacketType.ExecCommand, "",
+                        _remoteConServer.UseUtf8));
 
                     return;
                 }
@@ -269,7 +270,7 @@ namespace RCONServerLib
                     if (_isUnitTest)
                         throw new InvalidPacketTypeException();
 
-                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
+                    _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address +
                                               " sent a packet with invalid type!");
 
                     if (_remoteConServer.InvalidPacketKick)
@@ -281,7 +282,7 @@ namespace RCONServerLib
                 {
                     if (_isUnitTest)
                         throw new EmptyPacketPayloadException();
-                    _remoteConServer.LogDebug(((IPEndPoint) _tcp.Client.RemoteEndPoint).Address +
+                    _remoteConServer.LogDebug(((IPEndPoint)_tcp.Client.RemoteEndPoint).Address +
                                               " sent a packet with empty payload!");
 
                     if (_remoteConServer.EmptyPayloadKick)
@@ -297,7 +298,7 @@ namespace RCONServerLib
                 {
                     var result = _remoteConServer.ExecuteCustomCommandHandler(cmd, args);
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        result, _remoteConServer.UseUTF8));
+                        result, _remoteConServer.UseUtf8));
                     return;
                 }
 
@@ -305,14 +306,14 @@ namespace RCONServerLib
                 if (command == null)
                 {
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        "Invalid command \"" + packet.Payload + "\"", _remoteConServer.UseUTF8));
+                        "Invalid command \"" + packet.Payload + "\"", _remoteConServer.UseUtf8));
                 }
                 else
                 {
                     var commandResult = command.Handler(cmd, args);
                     // TODO: Split packets?
                     SendPacket(new RemoteConPacket(packet.Id, RemoteConPacket.PacketType.ResponseValue,
-                        commandResult, _remoteConServer.UseUTF8));
+                        commandResult, _remoteConServer.UseUtf8));
                 }
             }
             catch (RconServerException)
@@ -326,7 +327,7 @@ namespace RCONServerLib
 
                 if (!_isUnitTest)
                     _remoteConServer.LogDebug(string.Format("Client {0} caused an exception: {1} and was killed.",
-                        ((IPEndPoint) _tcp.Client.RemoteEndPoint).Address, e.Message));
+                        ((IPEndPoint)_tcp.Client.RemoteEndPoint).Address, e.Message));
 
                 CloseConnection();
             }

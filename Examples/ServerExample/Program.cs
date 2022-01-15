@@ -12,7 +12,7 @@ namespace ServerExample
             var server = new RemoteConServer(IPAddress.Any, 27015)
             {
                 SendAuthImmediately = true,
-                Debug = true,
+                Debug = true
             };
             server.CommandManager.Add("hello", "Echos back world", (command, arguments) => { return "world"; });
             server.CommandManager.Add("help", "(command)", "Shows this help", (cmd, arguments) =>
@@ -26,30 +26,28 @@ namespace ServerExample
 
                     return string.Format("{0} - {1}", helpCmd.Name, helpCmd.Description);
                 }
-                else
+
+                var sb = new StringBuilder();
+
+                var all = server.CommandManager.Commands.Count;
+                var i = 0;
+                foreach (var command in server.CommandManager.Commands)
                 {
-                    var sb = new StringBuilder();
+                    if (command.Value.Usage == "")
+                        sb.AppendFormat("{0}", command.Value.Name);
+                    else
+                        sb.AppendFormat("{0} {1}", command.Value.Name, command.Value.Usage);
+                    if (i < all)
+                        sb.Append(", ");
 
-                    var all = server.CommandManager.Commands.Count;
-                    var i = 0;
-                    foreach (var command in server.CommandManager.Commands)
-                    {
-                        if (command.Value.Usage == "")
-                            sb.AppendFormat("{0}", command.Value.Name);
-                        else
-                            sb.AppendFormat("{0} {1}", command.Value.Name, command.Value.Usage);
-                        if (i < all)
-                            sb.Append(", ");
-
-                        i++;
-                    }
-
-                    return sb.ToString();
+                    i++;
                 }
+
+                return sb.ToString();
             });
 
             server.StartListening();
-            
+
             Console.WriteLine("Server started. Press any key to stop.");
             Console.ReadKey();
         }

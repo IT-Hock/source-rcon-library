@@ -7,12 +7,12 @@ namespace RCONServerLib.Utils
     /// </summary>
     public class CommandManager
     {
-        public Dictionary<string, Command> Commands { get; private set; }
-
         public CommandManager()
         {
             Commands = new Dictionary<string, Command>();
         }
+
+        public Dictionary<string, Command> Commands { get; private set; }
 
         /// <summary>
         ///     Adds command to list of command handlers.
@@ -82,16 +82,15 @@ namespace RCONServerLib.Utils
             Handler = handler;
         }
 
-        public string Name { get; protected set; }
-        public string Usage { get; protected set; }
-        public string Description { get; protected set; }
-        public CommandHandler Handler { get; protected set; }
+        public string Name { get; private set; }
+        public string Usage { get; private set; }
+        public string Description { get; private set; }
+        public CommandHandler Handler { get; private set; }
     }
-    
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="command">The command that was entered</param>
-	/// <param name="args">List containing all arguments, does not contain command</param>
-	public delegate string CommandHandler(string command, IList<string> args);
+
+    /// <summary>
+    /// </summary>
+    /// <param name="command">The command that was entered</param>
+    /// <param name="args">List containing all arguments, does not contain command</param>
+    public delegate string CommandHandler(string command, IList<string> args);
 }

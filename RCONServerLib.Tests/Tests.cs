@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using RCONServerLib.Utils;
 using Xunit;
 
@@ -13,7 +12,8 @@ namespace RCONServerLib.Tests
         [InlineData(true)]
         public void RconPacketLengthTest(bool useUTF8)
         {
-            Assert.Throws<LengthMismatchException>(() => new RemoteConPacket(new byte[] {0xFF, 0xFF, 0x00, 0x00}, useUTF8));
+            Assert.Throws<LengthMismatchException>(() =>
+                new RemoteConPacket(new byte[] { 0xFF, 0xFF, 0x00, 0x00 }, useUTF8));
         }
 
         [Theory]
@@ -46,7 +46,7 @@ namespace RCONServerLib.Tests
             for (var i = 13; i < 4094; i++) bytes[i] = 0xFF;
             Assert.Throws<NullTerminatorMissingException>(() => new RemoteConPacket(bytes));
         }
-        
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -83,7 +83,7 @@ namespace RCONServerLib.Tests
                 0x02, 0x00, 0x00, 0x00, // Id
                 0x03, 0x00, 0x00, 0x00, // Type
                 0x00,
-                0x00,
+                0x00
             }, useUTF8);
 
             Assert.Equal(2, packet.Id);
@@ -102,7 +102,7 @@ namespace RCONServerLib.Tests
                 0x02, 0x00, 0x00, 0x00, // Id
                 0x03, 0x00, 0x00, 0x00, // Type
                 0x00,
-                0x00,
+                0x00
             };
             var packet = new RemoteConPacket(2, RemoteConPacket.PacketType.Auth, "", useUTF8);
 
@@ -120,7 +120,7 @@ namespace RCONServerLib.Tests
                 0x02, 0x00, 0x00, 0x00, // Id
                 0x03, 0x00, 0x00, 0x00, // Type
                 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x00,
-                0x00,
+                0x00
             };
             using (var ms = new MemoryStream(testBytes))
             {
@@ -149,7 +149,7 @@ namespace RCONServerLib.Tests
             Assert.True(nowTime.Hour == DateTimeExtensions.FromUnixTimestamp(unix).Hour, "Hour doesn't match");
             Assert.True(nowTime.Minute == DateTimeExtensions.FromUnixTimestamp(unix).Minute, "Minute doesn't match");
             Assert.True(nowTime.Second == DateTimeExtensions.FromUnixTimestamp(unix).Second, "Second doesn't match");
-            
+
             var unix2 = DateTime.Now.UnixTimestamp();
             Assert.True(nowTime.Day == DateTimeExtensions.FromUnixTimestamp(unix2).Day, "Day doesn't match");
             Assert.True(nowTime.Month == DateTimeExtensions.FromUnixTimestamp(unix2).Month, "Month doesn't match");

@@ -8,14 +8,16 @@
         <owners>Julien H. (Subtixx)</owners>
         <licenseUrl>https://github.com/Subtixx/source-rcon-library/blob/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/Subtixx/source-rcon-library/</projectUrl>
-        <iconUrl>https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png</iconUrl>
+        <iconUrl>https://user-images.githubusercontent.com/20743379/35411973-0227102e-021b-11e8-9a1b-023e08c33c4e.png
+        </iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
-Easy to use, single-class solution to create a Valve source RCON server which supports authentication,
-IP Whitelisting, a command manager and much more!
+            Easy to use, single-class solution to create a Valve source RCON server which supports authentication,
+            IP Whitelisting, a command manager and much more!
         </description>
         <summary>Single class solution to create a source compatible RCON interface</summary>
-        <releaseNotes>Please see https://github.com/Subtixx/source-rcon-library/releases for release notes!</releaseNotes>
+        <releaseNotes>Please see https://github.com/Subtixx/source-rcon-library/releases for release notes!
+        </releaseNotes>
         <copyright>Copyright Julien H. (Subtixx) 2018</copyright>
         <tags>source-rcon-server rconserver remoteconsole rcon-server</tags>
     </metadata>

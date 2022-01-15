@@ -21,6 +21,12 @@ namespace RCONServerLib
         private const int MaxAllowedPacketSize = 4096;
 
         /// <summary>
+        ///     Indicates the encoding of the packet payload.
+        ///     Is either ASCII or UTF8
+        /// </summary>
+        private readonly Encoding _packetEncoding = Encoding.ASCII;
+
+        /// <summary>
         ///     The identifier of the packet
         ///     (It need not be unique, but if a unique packet id is assigned,
         ///     it can be used to match incoming responses to their corresponding requests.)
@@ -43,15 +49,9 @@ namespace RCONServerLib
         /// </summary>
         public readonly PacketType Type;
 
-        /// <summary>
-        ///     Indicates the encoding of the packet payload.
-        ///     Is either ASCII or UTF8
-        /// </summary>
-        private readonly Encoding _packetEncoding = Encoding.ASCII;
-
-        public RemoteConPacket(byte[] packetBytes, bool useUTF8 = false)
+        public RemoteConPacket(byte[] packetBytes, bool useUtf8 = false)
         {
-            if (useUTF8)
+            if (useUtf8)
                 _packetEncoding = Encoding.UTF8;
 
             using (var ms = new MemoryStream(packetBytes))
@@ -69,9 +69,9 @@ namespace RCONServerLib
                     var packetType = reader.ReadInt32LittleEndian();
                     if (!Enum.IsDefined(typeof(PacketType), packetType))
                         throw new InvalidPacketTypeException("Invalid packet type");
-                    Type = (PacketType) Enum.ToObject(typeof(PacketType), packetType);
+                    Type = (PacketType)Enum.ToObject(typeof(PacketType), packetType);
 
-                    if (!useUTF8)
+                    if (!useUtf8)
                     {
                         Payload = reader.ReadAscii();
 
@@ -95,9 +95,9 @@ namespace RCONServerLib
             }
         }
 
-        public RemoteConPacket(int id, PacketType type, string payload, bool useUTF8 = false)
+        public RemoteConPacket(int id, PacketType type, string payload, bool useUtf8 = false)
         {
-            if (useUTF8)
+            if (useUtf8)
                 _packetEncoding = Encoding.UTF8;
 
             Payload = payload;
@@ -110,7 +110,7 @@ namespace RCONServerLib
         /// <summary>
         ///     The total size of the packet
         /// </summary>
-        public int Length
+        private int Length
         {
             get { return _packetEncoding.GetBytes(Payload + '\0').Length + 13; }
         }
@@ -128,7 +128,7 @@ namespace RCONServerLib
                     var bodyBytes = _packetEncoding.GetBytes(Payload + '\0');
                     writer.WriteLittleEndian(bodyBytes.Length + 9);
                     writer.WriteLittleEndian(Id);
-                    writer.WriteLittleEndian((int) Type);
+                    writer.WriteLittleEndian((int)Type);
                     writer.Write(bodyBytes);
                     writer.Write('\0');
 

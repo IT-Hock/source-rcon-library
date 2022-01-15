@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using RCONServerLib.Utils;
 
 namespace RCONServerLib
@@ -20,7 +19,7 @@ namespace RCONServerLib
 
         public RemoteConServer(IPAddress bindAddress, int port)
         {
-            UseUTF8 = false;
+            UseUtf8 = false;
             EmptyPayloadKick = true;
             EnableIpWhitelist = true;
             InvalidPacketKick = true;
@@ -55,7 +54,7 @@ namespace RCONServerLib
         ///     Whether to use UTF8 to encode packet payloads.
         ///     Default: False
         /// </summary>
-        public bool UseUTF8 { get; set; }
+        public bool UseUtf8 { get; set; }
 
         /// <summary>
         ///     When true closes the connection if the payload of the packet is empty.
@@ -150,7 +149,7 @@ namespace RCONServerLib
         {
             _listener.Start();
             _listener.BeginAcceptTcpClient(OnAccept, _listener);
-            LogDebug("Started listening on " + ((IPEndPoint) _listener.LocalEndpoint).Address + ", Password is: \"" +
+            LogDebug("Started listening on " + ((IPEndPoint)_listener.LocalEndpoint).Address + ", Password is: \"" +
                      Password + "\"");
         }
 
@@ -175,7 +174,7 @@ namespace RCONServerLib
                 return;
             }
 
-            var ip = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address;
+            var ip = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address;
 
             if (MaxConnections > 0)
                 if (_clients.Count >= MaxConnections)
@@ -189,7 +188,7 @@ namespace RCONServerLib
             {
                 var count = 0;
                 foreach (var tcpClient1 in _clients)
-                    if (((IPEndPoint) tcpClient1.Client.RemoteEndPoint).Address.ToString() == ip.ToString())
+                    if (((IPEndPoint)tcpClient1.Client.RemoteEndPoint).Address.ToString() == ip.ToString())
                         count++;
 
                 if (count >= MaxConnectionsPerIp)
@@ -202,7 +201,7 @@ namespace RCONServerLib
 
             if (EnableIpWhitelist)
                 if (!IpWhitelist.Any(p =>
-                    IpExtension.Match(p, ip.ToString())))
+                        IpExtension.Match(p, ip.ToString())))
                 {
                     LogDebug("Rejected new connection from " + ip + " (Not in whitelist)");
                     tcpClient.Close();
@@ -223,7 +222,7 @@ namespace RCONServerLib
             }
 
             LogDebug("Accepted new connection from " + ip);
-            var client = new RemoteConTcpClient(tcpClient, this);
+            new RemoteConTcpClient(tcpClient, this);
 
             _clients.Add(tcpClient);
 

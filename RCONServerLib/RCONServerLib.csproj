@@ -42,8 +42,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoteConServer.cs" />
     <Compile Include="Utils\ArgumentParser.cs" />
-    <Compile Include="Utils\BinaryReaderExt.cs" />
-    <Compile Include="Utils\BinaryWriterExt.cs" />
+    <Compile Include="Utils\BinaryReaderExtended.cs" />
+    <Compile Include="Utils\BinaryWriterExtended.cs" />
     <Compile Include="Utils\CommandManager.cs" />
     <Compile Include="Utils\DateTimeExtensions.cs" />
     <Compile Include="Utils\Exceptions.cs" />

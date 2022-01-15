@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/maintenance/yes/2018.svg?style=flat-square">
+    <img src="https://img.shields.io/maintenance/yes/2022.svg?style=flat-square">
 </p>
 
 <h3 align="center">

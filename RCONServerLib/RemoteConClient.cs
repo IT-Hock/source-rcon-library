@@ -41,11 +41,6 @@ namespace RCONServerLib
         private const int MaxAllowedPacketSize = 4096;
 
         /// <summary>
-        ///     The TCP Client
-        /// </summary>
-        private TcpClient _client;
-
-        /// <summary>
         ///     A list containing all requested commands for event handling
         /// </summary>
         private readonly Dictionary<int, CommandResult> _requestedCommands;
@@ -54,6 +49,11 @@ namespace RCONServerLib
         ///     A buffer containing the packet
         /// </summary>
         private byte[] _buffer;
+
+        /// <summary>
+        ///     The TCP Client
+        /// </summary>
+        private TcpClient _client;
 
         /// <summary>
         ///     Underlaying NetworkStream
@@ -77,7 +77,7 @@ namespace RCONServerLib
             _packetId = 0;
             _requestedCommands = new Dictionary<int, CommandResult>();
 
-            UseUTF8 = false;
+            UseUtf8 = false;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace RCONServerLib
         /// <summary>
         ///     Whether to use UTF8 to encode the packet payload
         /// </summary>
-        public bool UseUTF8 { get; set; }
+        public bool UseUtf8 { get; set; }
 
         /// <summary>
         ///     An event handler when the result of the authentication is received
@@ -120,30 +120,34 @@ namespace RCONServerLib
             Log(string.Format("Connecting to {0}:{1}", hostname, port));
             try
             {
-                IAsyncResult ar = null;
+                IAsyncResult asyncResult = null;
                 try
                 {
-                    ar = _client.BeginConnect(hostname, port, null, null);
+                    asyncResult = _client.BeginConnect(hostname, port, null, null);
                 }
                 catch (ObjectDisposedException)
                 {
                     _client = new TcpClient();
                     try
                     {
-                        ar = _client.BeginConnect(hostname, port, null, null);
+                        asyncResult = _client.BeginConnect(hostname, port, null, null);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Log("Unknown Exception");
                     }
                 }
-                ar.AsyncWaitHandle.WaitOne(2000); // wait 2 seconds
-                if (!ar.IsCompleted)
+
+                if (asyncResult == null)
                 {
-                    if (OnConnectionStateChange != null)
-                    {
-                        OnConnectionStateChange(ConnectionStateChange.NoConnection);
-                    }
+                    Log("Async connect failed!");
+                    return;
+                }
+
+                asyncResult.AsyncWaitHandle.WaitOne(2000); // wait 2 seconds
+                if (!asyncResult.IsCompleted)
+                {
+                    if (OnConnectionStateChange != null) OnConnectionStateChange(ConnectionStateChange.NoConnection);
                     _client.Client.Close();
                 }
             }
@@ -154,6 +158,7 @@ namespace RCONServerLib
                     OnConnectionStateChange(ConnectionStateChange.ConnectionTimeout);
                     _client.Client.Close();
                 }
+
                 return;
             }
 
@@ -202,7 +207,7 @@ namespace RCONServerLib
         public void Authenticate(string password)
         {
             _packetId++;
-            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.Auth, password, UseUTF8);
+            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.Auth, password, UseUtf8);
             SendPacket(packet);
         }
 
@@ -223,7 +228,7 @@ namespace RCONServerLib
             _packetId++;
             _requestedCommands.Add(_packetId, resultFunc);
 
-            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.ExecCommand, command, UseUTF8);
+            var packet = new RemoteConPacket(_packetId, RemoteConPacket.PacketType.ExecCommand, command, UseUtf8);
             SendPacket(packet);
         }
 
@@ -243,8 +248,12 @@ namespace RCONServerLib
             {
                 _ns.BeginWrite(packetBytes, 0, packetBytes.Length - 1, ar => { _ns.EndWrite(ar); }, null);
             }
-            catch (ObjectDisposedException) { } // Do not write to NetworkStream when it's closed.
-            catch (IOException) { } // Do not write to Socket when it's closed.
+            catch (ObjectDisposedException)
+            {
+            } // Do not write to NetworkStream when it's closed.
+            catch (IOException)
+            {
+            } // Do not write to Socket when it's closed.
         }
 
         /// <summary>
@@ -300,11 +309,11 @@ namespace RCONServerLib
         ///     Parses raw bytes to RemoteConPacket
         /// </summary>
         /// <param name="rawPacket"></param>
-        internal void ParsePacket(byte[] rawPacket)
+        private void ParsePacket(byte[] rawPacket)
         {
             try
             {
-                var packet = new RemoteConPacket(rawPacket, UseUTF8);
+                var packet = new RemoteConPacket(rawPacket, UseUtf8);
                 if (!Authenticated)
                 {
                     // ExecCommand is AuthResponse too.
@@ -328,14 +337,11 @@ namespace RCONServerLib
                     return;
                 }
 
-                if (_requestedCommands.ContainsKey(packet.Id) && packet.Type == RemoteConPacket.PacketType.ResponseValue)
-                {
+                if (_requestedCommands.ContainsKey(packet.Id) &&
+                    packet.Type == RemoteConPacket.PacketType.ResponseValue)
                     _requestedCommands[packet.Id](packet.Payload);
-                }
                 else
-                {
                     Log("Got packet with invalid id " + packet.Id);
-                }
             }
             catch (Exception e)
             {

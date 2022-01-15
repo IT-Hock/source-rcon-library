@@ -12,7 +12,7 @@ namespace RCONServerLib.Utils
         }
 
         /// <summary>
-        /// Writes the int as little endian if we're in a big-endian environment 
+        ///     Writes the int as little endian if we're in a big-endian environment
         /// </summary>
         /// <param name="val">The value to write</param>
         public void WriteLittleEndian(int val)

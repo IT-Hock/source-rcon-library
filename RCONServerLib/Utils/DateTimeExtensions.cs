@@ -11,7 +11,7 @@ namespace RCONServerLib.Utils
         /// <returns>The given DateTime in Unix timestamp format</returns>
         public static int ToUnixTimestamp(this DateTime value)
         {
-            return (int) Math.Truncate(value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+            return (int)Math.Truncate(value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace RCONServerLib.Utils
         /// <returns>Now expressed as a Unix timestamp</returns>
         public static int UnixTimestamp(this DateTime ignored)
         {
-            return (int) Math.Truncate(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+            return (int)Math.Truncate(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
         }
 
         public static DateTime FromUnixTimestamp(int unixTimeStamp)

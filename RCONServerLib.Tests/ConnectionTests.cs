@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading;
 using Xunit;
 
@@ -10,30 +9,33 @@ namespace RCONServerLib.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void TestAuthFail(bool useUTF8)
+        public void TestAuthFail(bool useUtf8)
         {
-            var server = new RemoteConServer(IPAddress.Any, 27015);
-            server.UseUTF8 = useUTF8;
+            var server = new RemoteConServer(IPAddress.Any, 27015)
+            {
+                UseUtf8 = useUtf8
+            };
             server.StartListening();
 
-            bool authResult = false;
-            using (var waitEvent = new AutoResetEvent(false))
+            var authResult = true;
+            var waitEvent = new AutoResetEvent(false);
+            var client = new RemoteConClient
             {
-                var client = new RemoteConClient();
-                client.UseUTF8 = useUTF8;
-                client.OnAuthResult += success =>
-                {
-                    authResult = success;
+                UseUtf8 = useUtf8
+            };
 
-                    client.Disconnect();
-                    server.StopListening();
-                    waitEvent.Set();
-                };
+            client.OnAuthResult += success =>
+            {
+                authResult = success;
 
-                client.Connect("127.0.0.1", 27015);
-                client.Authenticate("unitfail");
-                waitEvent.WaitOne();
-            }
+                client.Disconnect();
+                server.StopListening();
+                waitEvent.Set();
+            };
+
+            client.Connect("127.0.0.1", 27015);
+            client.Authenticate("unitfail");
+            waitEvent.WaitOne();
 
             Assert.False(authResult);
         }
@@ -41,30 +43,32 @@ namespace RCONServerLib.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void TestAuthSuccess(bool useUTF8)
+        public void TestAuthSuccess(bool useUtf8)
         {
-            var server = new RemoteConServer(IPAddress.Any, 27015);
-            server.UseUTF8 = useUTF8;
+            var server = new RemoteConServer(IPAddress.Any, 27015)
+            {
+                UseUtf8 = useUtf8
+            };
             server.StartListening();
 
-            bool authResult = false;
-            using (var waitEvent = new AutoResetEvent(false))
+            var authResult = false;
+            var waitEvent = new AutoResetEvent(false);
+            var client = new RemoteConClient
             {
-                var client = new RemoteConClient();
-                client.UseUTF8 = useUTF8;
-                client.OnAuthResult += success =>
-                {
-                    authResult = success; 
+                UseUtf8 = useUtf8
+            };
+            client.OnAuthResult += success =>
+            {
+                authResult = success;
 
-                    client.Disconnect();
-                    server.StopListening();
-                    waitEvent.Set();
-                };
+                client.Disconnect();
+                server.StopListening();
+                waitEvent.Set();
+            };
 
-                client.Connect("127.0.0.1", 27015);
-                client.Authenticate("changeme");
-                waitEvent.WaitOne();
-            }
+            client.Connect("127.0.0.1", 27015);
+            client.Authenticate("changeme");
+            waitEvent.WaitOne();
 
             Assert.True(authResult);
         }
@@ -72,33 +76,33 @@ namespace RCONServerLib.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void TestCommandFail(bool useUTF8)
+        public void TestCommandFail(bool useUtf8)
         {
             var server = new RemoteConServer(IPAddress.Any, 27015);
             server.StartListening();
-            server.UseUTF8 = useUTF8;
+            server.UseUtf8 = useUtf8;
 
             string commandResult = null;
-            using (var waitEvent = new AutoResetEvent(false))
+            var waitEvent = new AutoResetEvent(false);
+            var client = new RemoteConClient
             {
-                var client = new RemoteConClient();
-                client.UseUTF8 = useUTF8;
-                client.OnAuthResult += success =>
+                UseUtf8 = useUtf8
+            };
+            client.OnAuthResult += success =>
+            {
+                client.SendCommand("testing", result =>
                 {
-                    client.SendCommand("testing", result =>
-                    {
-                        commandResult = result;
+                    commandResult = result;
 
-                        client.Disconnect();
-                        server.StopListening();
-                        waitEvent.Set();
-                    });
-                };
+                    client.Disconnect();
+                    server.StopListening();
+                    waitEvent.Set();
+                });
+            };
 
-                client.Connect("127.0.0.1", 27015);
-                client.Authenticate("changeme");
-                waitEvent.WaitOne();
-            }
+            client.Connect("127.0.0.1", 27015);
+            client.Authenticate("changeme");
+            waitEvent.WaitOne();
 
             Assert.Contains("Invalid command", commandResult);
         }
@@ -106,34 +110,34 @@ namespace RCONServerLib.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void TestCommandSuccess(bool useUTF8)
+        public void TestCommandSuccess(bool useUtf8)
         {
             var server = new RemoteConServer(IPAddress.Any, 27015);
-		    server.CommandManager.Add("hello", "Replies with world", (command, args) => "world");
-            server.UseUTF8 = true;
+            server.CommandManager.Add("hello", "Replies with world", (command, args) => "world");
+            server.UseUtf8 = true;
             server.StartListening();
 
             string commandResult = null;
-            using (var waitEvent = new AutoResetEvent(false))
+            var waitEvent = new AutoResetEvent(false);
+            var client = new RemoteConClient
             {
-                var client = new RemoteConClient();
-                client.UseUTF8 = useUTF8;
-                client.OnAuthResult += success =>
+                UseUtf8 = useUtf8
+            };
+            client.OnAuthResult += success =>
+            {
+                client.SendCommand("hello", result =>
                 {
-                    client.SendCommand("hello", result =>
-                    {
-                        commandResult = result;
+                    commandResult = result;
 
-                        client.Disconnect();
-                        server.StopListening();
-                        waitEvent.Set();
-                    });
-                };
+                    client.Disconnect();
+                    server.StopListening();
+                    waitEvent.Set();
+                });
+            };
 
-                client.Connect("127.0.0.1", 27015);
-                client.Authenticate("changeme");
-                waitEvent.WaitOne();
-            }
+            client.Connect("127.0.0.1", 27015);
+            client.Authenticate("changeme");
+            waitEvent.WaitOne();
 
             Assert.Contains("world", commandResult);
         }
